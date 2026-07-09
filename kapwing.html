@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title translate="no">Kapwing: Make a Video About Anything</title>
+    <meta charset="utf-8" />
+    <meta name="fragment" content="!" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover"
+    />
+    <!-- Manifest and favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="https://cdn-useast1.kapwing.com/static/G2D-apple-touch-icon.webp"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="https://cdn-useast1.kapwing.com/static/nnB-kapwing-logo-32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="https://cdn-useast1.kapwing.com/static/ZM5-kapwing-logo-16.png"
+    />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="https://cdn-useast1.kapwing.com/static/Xeq-favicon.ico?v=1"
+    />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="facebook-domain-verification"
+      content="6rwlsmptpqic8ed86trmrinkn1wxkb"
+    />
+
+    <!-- handle helmet tags -->
+        <meta name="robots" content="noindex, nofollow" />    <meta name="application-name" content="Kapwing" />
+
+    <!-- Additional libraries: -->
+    <!-- Amplitude -->
+    <script type="text/javascript">
+      !(function () {
+        "use strict";
+        !(function (e, t) {
+          var r = e.amplitude || { _q: [], _iq: {} };
+          if (r.invoked)
+            e.console &&
+              console.error &&
+              console.error("Amplitude snippet has been loaded.");
+          else {
+            var n = function (e, t) {
+                e.prototype[t] = function () {
+                  return (
+                    this._q.push({
+                      name: t,
+                      args: Array.prototype.slice.call(arguments, 0),
+                    }),
+                    this
+                  );
+                };
+              },
+              s = function (e, t, r) {
+                return function (n) {
+                  e._q.push({
+                    name: t,
+                    args: Array.prototype.slice.call(r, 0),
+                    resolve: n,
+                  });
+                };
+              },
+              o = function (e, t, r) {
+                e._q.push({ name: t, args: Array.prototype.slice.call(r, 0) });
+              },
+              i = function (e, t, r) {
+                e[t] = function () {
+                  if (r)
+                    return {
+                      promise: new Promise(
+                        s(e, t, Array.prototype.slice.call(arguments))
+                      ),
+                    };
+                  o(e, t, Array.prototype.slice.call(arguments));
+                };
+              },
+              a = function (e) {
+                for (var t = 0; t < y.length; t++) i(e, y[t], !1);
+                for (var r = 0; r < m.length; r++) i(e, m[r], !0);
+              };
+            r.invoked = !0;
+            var c = t.createElement("script");
+            (c.type = "text/javascript"),
+              (c.integrity =
+                "sha384-K72JbnYMHEqH91wgS6N4hKoziVDD1NnZTRq4Di+VDkZIzCdgkJjxAgNVusP5lZ1E"),
+              (c.crossOrigin = "anonymous"),
+              (c.async = !0),
+              (c.src =
+                "https://cdn.amplitude.com/libs/analytics-browser-2.6.1-min.js.gz"),
+              (c.onload = function () {
+                e.amplitude.runQueuedFunctions ||
+                  console.log("[Amplitude] Error: could not load SDK");
+              });
+            var u = t.getElementsByTagName("script")[0];
+            u.parentNode.insertBefore(c, u);
+            for (
+              var l = function () {
+                  return (this._q = []), this;
+                },
+                p = [
+                  "add",
+                  "append",
+                  "clearAll",
+                  "prepend",
+                  "set",
+                  "setOnce",
+                  "unset",
+                  "preInsert",
+                  "postInsert",
+                  "remove",
+                  "getUserProperties",
+                ],
+                d = 0;
+              d < p.length;
+              d++
+            )
+              n(l, p[d]);
+            r.Identify = l;
+            for (
+              var f = function () {
+                  return (this._q = []), this;
+                },
+                v = [
+                  "getEventProperties",
+                  "setProductId",
+                  "setQuantity",
+                  "setPrice",
+                  "setRevenue",
+                  "setRevenueType",
+                  "setEventProperties",
+                ],
+                g = 0;
+              g < v.length;
+              g++
+            )
+              n(f, v[g]);
+            r.Revenue = f;
+            var y = [
+                "getDeviceId",
+                "setDeviceId",
+                "getSessionId",
+                "setSessionId",
+                "getUserId",
+                "setUserId",
+                "setOptOut",
+                "setTransport",
+                "reset",
+                "extendSession",
+              ],
+              m = [
+                "init",
+                "add",
+                "remove",
+                "track",
+                "logEvent",
+                "identify",
+                "groupIdentify",
+                "setGroup",
+                "revenue",
+                "flush",
+              ];
+            a(r),
+              (r.createInstance = function (e) {
+                return (r._iq[e] = { _q: [] }), a(r._iq[e]), r._iq[e];
+              }),
+              (e.amplitude = r);
+          }
+        })(window, document);
+      })();
+      // We initialize this in amplitudeInit.js
+    </script>
+
+    <!-- Tapfiliate -->
+    <script
+      src="https://script.tapfiliate.com/tapfiliate.js"
+      type="text/javascript"
+      async
+    ></script>
+    <script type="text/javascript" async>
+      (function (t, a, p) {
+        t.TapfiliateObject = a;
+        t[a] =
+          t[a] ||
+          function () {
+            (t[a].q = t[a].q || []).push(arguments);
+          };
+      })(window, "Tapfiliate");
+
+      Tapfiliate("create", "28114-52052d", { integration: "stripe" });
+      Tapfiliate("detect");
+    </script>
+
+    <!-- Polyfill global for some node_modules that use it. -->
+    <script>
+      const global = globalThis;
+    </script>
+
+    <!-- Facebook Pixel Code -->
+    <script async>
+      /* delaying execution helps page speed score*/
+      setTimeout(function () {
+        !(function (f, b, e, v, n, t, s) {
+          if (f.fbq) return;
+          n = f.fbq = function () {
+            n.callMethod
+              ? n.callMethod.apply(n, arguments)
+              : n.queue.push(arguments);
+          };
+          if (!f._fbq) f._fbq = n;
+          n.push = n;
+          n.loaded = !0;
+          n.version = "2.0";
+          n.queue = [];
+          t = b.createElement(e);
+          t.async = !0;
+          t.src = v;
+          s = b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t, s);
+        })(
+          window,
+          document,
+          "script",
+          "https://connect.facebook.net/en_US/fbevents.js"
+        );
+        fbq("init", "1848692598512897");
+        fbq("track", "PageView");
+      }, 3000);
+    </script>
+    <noscript
+      ><img
+        height="1"
+        width="1"
+        style="display: none"
+        src="https://www.facebook.com/tr?id=1848692598512897&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Facebook Pixel Code -->
+
+    <!-- SharedArrayBuffer Origin Trial: https://developer.chrome.com/blog/enabling-shared-array-buffer/#origin-trial -->
+    <script async>
+      function addTrialToken(tokenContents) {
+        const tokenElement = document.createElement("meta");
+        tokenElement.httpEquiv = "origin-trial";
+        tokenElement.content = tokenContents;
+        document.head.appendChild(tokenElement);
+      }
+      if (window.location.hostname === "www.kapwing-dev.com") {
+        addTrialToken(
+          "Av2qlPfgkewtjSCKR10KwYeqTEFi33FCB6d1SYhIgjTvgMAU4d7U9nkMNZV3+jAl2lU7cEiuYukr2ZKd1X0hAgIAAAB5eyJvcmlnaW4iOiJodHRwczovL2thcHdpbmctZGV2LmNvbTo0NDMiLCJmZWF0dXJlIjoiVW5yZXN0cmljdGVkU2hhcmVkQXJyYXlCdWZmZXIiLCJleHBpcnkiOjE2Mzk1MjYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ=="
+        );
+      }
+      if (window.location.hostname === "www.kapwing.com") {
+        addTrialToken(
+          "AuL8/YlpCMluQLO3jHmGwAsMQiBL2JJPhRukhNzwRi2OJB6ic/XN7nINm2I3g1LoPXbsyLwggfZWA+nAt4aLHwYAAAB1eyJvcmlnaW4iOiJodHRwczovL2thcHdpbmcuY29tOjQ0MyIsImZlYXR1cmUiOiJVbnJlc3RyaWN0ZWRTaGFyZWRBcnJheUJ1ZmZlciIsImV4cGlyeSI6MTYzOTUyNjM5OSwiaXNTdWJkb21haW4iOnRydWV9"
+        );
+      }
+    </script>
+
+    <!-- More libraries -->
+    <script async src="/ffmpeg-core.js"></script>
+    <script async src="https://accounts.google.com/gsi/client"></script>
+
+    <!-- Digital Goods API V1 Origin trial -->
+    <meta
+      http-equiv="origin-trial"
+      content="Aqo/PMO5ZALJA5+mg78T9E2ZUE5KqPIcRlbVyH6ZNNGcSKFDSe2Y8eG+WMyR9fl6kDsUQaMS0oIuxbYrq/033wkAAABoeyJvcmlnaW4iOiJodHRwczovL3d3dy5rYXB3aW5nLmNvbTo0NDMiLCJmZWF0dXJlIjoiRGlnaXRhbEdvb2RzIiwiZXhwaXJ5IjoxNjQzNTg3MTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZX0="
+    />
+    <!-- Digital Goods API V2 Origin trial -->
+    <meta
+      http-equiv="origin-trial"
+      content="Aq8yw/k4bvT5zvjeUbfy2ZzBwES6jMYXEWbNUDr4oc8XZGXtho/q+DzpjssUsQg9YowBATUEc245+MdYljFougYAAABqeyJvcmlnaW4iOiJodHRwczovL3d3dy5rYXB3aW5nLmNvbTo0NDMiLCJmZWF0dXJlIjoiRGlnaXRhbEdvb2RzVjIiLCJleHBpcnkiOjE2NTMyNjM5OTksImlzU3ViZG9tYWluIjp0cnVlfQ=="
+    />
+    <script type="module" crossorigin src="/assets/main-CEZLV_IN.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-BgUFPplA.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-radix-Ck4ANEqy.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-BM3CHK7H.js">
+    <link rel="modulepreload" crossorigin href="/assets/utils-BpjmS9oW.js">
+    <link rel="modulepreload" crossorigin href="/assets/util-eSk4zNdz.js">
+    <link rel="modulepreload" crossorigin href="/assets/amplitude-DhfjP8qY.js">
+    <link rel="modulepreload" crossorigin href="/assets/SafeLocalStorage-B9jPhL7B.js">
+    <link rel="modulepreload" crossorigin href="/assets/movingZoomHelpers-TVyDB8SP.js">
+    <link rel="modulepreload" crossorigin href="/assets/LoadingFullScreen-BUfk0y_o.js">
+    <link rel="modulepreload" crossorigin href="/assets/GAPIContext-CQVuzkoK.js">
+    <link rel="modulepreload" crossorigin href="/assets/GLTransition-B9Vqa4Ef.js">
+    <link rel="modulepreload" crossorigin href="/assets/tabVisibilityContext-CQWdQFkV.js">
+    <link rel="modulepreload" crossorigin href="/assets/RadixProvider-D00jQYvm.js">
+    <link rel="stylesheet" crossorigin href="/assets/vendor-legcy4jI.css">
+    <link rel="stylesheet" crossorigin href="/assets/movingZoomHelpers-CRSGF-C8.css">
+    <link rel="stylesheet" crossorigin href="/assets/LoadingFullScreen-DTLiRj5q.css">
+    <link rel="stylesheet" crossorigin href="/assets/GAPIContext-DqdPtqoa.css">
+    <link rel="stylesheet" crossorigin href="/assets/tabVisibilityContext-B7HAn-3l.css">
+    <link rel="stylesheet" crossorigin href="/assets/RadixProvider-K8e19jW2.css">
+    <link rel="stylesheet" crossorigin href="/assets/main-16Y0W62w.css">
+  </head>
+  <body>
+    <main id="root"></main>
+  </body>
+</html>

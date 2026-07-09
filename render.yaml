@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: contractdiff
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: tsx server/index.ts
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: "3001"
+      - key: APP_URL
+        value: https://contractdiff.onrender.com
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false

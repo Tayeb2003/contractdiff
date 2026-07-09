@@ -1,0 +1,6 @@
+{
+  "name": "ContractDiff",
+  "description": "Contract Diff For Non-Lawyers - Compare contracts in seconds with smart diff.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
