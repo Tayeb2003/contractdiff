@@ -27,12 +27,11 @@ function BackgroundVideo() {
           key={i}
           ref={refs[i]}
           src={BG_VIDEO}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none animate-kenburns transition-opacity duration-[1200ms] ease-in-out"
-          style={{
-            filter: 'contrast(1.2) saturate(1.25) brightness(1.2)',
-            opacity: active === i ? 1 : 0,
-            objectPosition: 'center 30%',
-          }}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none animate-kenburns transition-opacity duration-[1200ms] ease-in-out"
+            style={{
+              filter: 'contrast(1.2) saturate(1.25) brightness(1.2)',
+              opacity: active === i ? 1 : 0,
+            }}
           autoPlay={i === 0}
           muted
           playsInline

@@ -1,0 +1,20 @@
+[package]
+name = "contractdiff"
+version = "0.1.0"
+description = "ContractDiff — AI-powered contract comparison"
+
+[app]
+entry = "./edge/index.ts"
+
+[static]
+directory = "./dist"
+
+[env]
+TURSO_DATABASE_URL = { default = "" }
+TURSO_AUTH_TOKEN = { default = "" }
+JWT_SECRET = { default = "" }
+APP_URL = { default = "" }
+FRONTEND_URL = { default = "" }
+ALLOWED_ORIGINS = { default = "" }
+RESEND_API_KEY = { default = "" }
+EMAIL_FROM = { default = "" }

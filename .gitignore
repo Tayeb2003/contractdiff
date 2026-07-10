@@ -9,4 +9,6 @@ coverage/
 *.db
 *.db-shm
 *.db-wal
+edge/bundle.js
+uploads/
 # public/bg-video.mp4

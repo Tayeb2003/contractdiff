@@ -8,13 +8,16 @@
     "dev:server": "tsx server/index.ts",
     "dev:frontend": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
+    "build:edge": "esbuild edge/index.ts --bundle --outfile=edge/bundle.js --platform=browser --target=es2022 --format=esm",
     "preview": "vite preview",
+    "deploy:wasmer": "wasmer deploy",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "lint:server": "tsc --noEmit server/"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
+    "@libsql/client": "^0.15.15",
     "@tailwindcss/vite": "^4.1.14",
     "@types/nodemailer": "^8.0.1",
     "@vitejs/plugin-react": "^5.0.4",
