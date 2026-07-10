@@ -73,13 +73,13 @@ export default function HomePage({ proMode }: HomePageProps) {
       <Hero />
 
       {/* Proposition */}
-      <section className="relative z-10 py-40 px-6 md:px-12 max-w-[90rem] mx-auto w-full">
+      <section className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-12 max-w-[90rem] mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto text-center mb-32"
+          className="max-w-4xl mx-auto text-center mb-16 md:mb-24 lg:mb-32"
         >
           <span className="text-xs uppercase tracking-[0.3em] opacity-50 mb-8 block">The Proposition</span>
           <h2 className="font-serif text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-10 text-metallic">
@@ -140,7 +140,7 @@ export default function HomePage({ proMode }: HomePageProps) {
             ].map((stat, i) => (
               <div key={i} className="relative px-4">
                 {i > 0 && <span className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 w-px h-16 bg-mint/15" />}
-                <div className="text-6xl md:text-7xl lg:text-8xl font-serif text-metallic leading-none">
+                <div className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-serif text-metallic leading-none">
                   <Counter to={stat.to} suffix={stat.suffix} />
                 </div>
                 <p className="text-sm font-normal text-body opacity-60 mt-4 uppercase tracking-[0.15em]">{stat.label}</p>
@@ -151,7 +151,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       </section>
 
       {/* Reviews */}
-      <section className="relative z-10 py-40 px-6 md:px-12 max-w-7xl mx-auto w-full">
+      <section className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-12 max-w-7xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -160,7 +160,7 @@ export default function HomePage({ proMode }: HomePageProps) {
         >
           <div className="text-center mb-20">
             <span className="text-xs uppercase tracking-[0.3em] opacity-50 mb-6 block">Testimonials</span>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-7xl mb-6 uppercase tracking-normal text-metallic">Trusted by Negotiators</h2>
+            <h2 className="font-serif text-4xl md:text-5xl xl:text-7xl mb-6 uppercase tracking-normal text-metallic">Trusted by Negotiators</h2>
             <p className="text-lg md:text-xl opacity-80 font-normal text-body max-w-2xl mx-auto">From freelancers to legal teams — hear from people who actually use ContractDiff.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
@@ -245,30 +245,61 @@ export default function HomePage({ proMode }: HomePageProps) {
         </motion.div>
       </section>
 
-      {/* How It Works — Horizontal Scroll */}
-      <HorizontalScroll panelCount={4} className="gap-0">
-        {[
-          { icon: <UploadIcon className="w-12 h-12" strokeWidth={1} />, step: "01", title: "Upload", body: "Upload two versions of your contract — PDF, DOCX, or paste text directly. No formatting required." },
-          { icon: <GitCompare className="w-12 h-12" strokeWidth={1} />, step: "02", title: "Compare", body: "Our engine runs a clause-level diff across both documents, extracting every change with surgical precision." },
-          { icon: <MessageSquareText className="w-12 h-12" strokeWidth={1} />, step: "03", title: "Analyse", body: "AI translates each change into plain English, scores severity, and flags which party each clause favours." },
-          { icon: <Download className="w-12 h-12" strokeWidth={1} />, step: "04", title: "Act", body: "Export your analysis, share with your team, negotiate from a position of knowledge — not guesswork." },
-        ].map((panel, i) => (
-          <div key={i} className="h-full w-full flex items-center justify-center px-8 md:px-20 border-r border-mint/10">
-            <div className="max-w-lg">
-              <div className="flex items-center gap-4 mb-8">
-                <span className="text-7xl md:text-9xl font-serif font-bold text-metallic leading-none opacity-80">{panel.step}</span>
-                <div className="text-mint">{panel.icon}</div>
+      {/* How It Works — Horizontal Scroll (desktop) / Vertical Stack (mobile) */}
+      <div className="hidden lg:block">
+        <HorizontalScroll panelCount={4} className="gap-0">
+          {[
+            { icon: <UploadIcon className="w-12 h-12" strokeWidth={1} />, step: "01", title: "Upload", body: "Upload two versions of your contract — PDF, DOCX, or paste text directly. No formatting required." },
+            { icon: <GitCompare className="w-12 h-12" strokeWidth={1} />, step: "02", title: "Compare", body: "Our engine runs a clause-level diff across both documents, extracting every change with surgical precision." },
+            { icon: <MessageSquareText className="w-12 h-12" strokeWidth={1} />, step: "03", title: "Analyse", body: "AI translates each change into plain English, scores severity, and flags which party each clause favours." },
+            { icon: <Download className="w-12 h-12" strokeWidth={1} />, step: "04", title: "Act", body: "Export your analysis, share with your team, negotiate from a position of knowledge — not guesswork." },
+          ].map((panel, i) => (
+            <div key={i} className="h-full w-full flex items-center justify-center px-8 md:px-20 border-r border-mint/10">
+              <div className="max-w-lg">
+                <div className="flex items-center gap-4 mb-8">
+                  <span className="text-7xl md:text-9xl font-serif font-bold text-metallic leading-none opacity-80">{panel.step}</span>
+                  <div className="text-mint">{panel.icon}</div>
+                </div>
+                <h3 className="font-serif text-4xl md:text-6xl mb-6 text-metallic">{panel.title}</h3>
+                <div className="w-16 h-px bg-mint/40 mb-6" />
+                <p className="text-lg md:text-xl font-normal text-body opacity-70 leading-relaxed">{panel.body}</p>
               </div>
-              <h3 className="font-serif text-4xl md:text-6xl mb-6 text-metallic">{panel.title}</h3>
-              <div className="w-16 h-px bg-mint/40 mb-6" />
-              <p className="text-lg md:text-xl font-normal text-body opacity-70 leading-relaxed">{panel.body}</p>
             </div>
-          </div>
+          ))}
+        </HorizontalScroll>
+      </div>
+      <div className="lg:hidden py-20 px-6">
+        <div className="text-center mb-16">
+          <span className="text-xs uppercase tracking-[0.3em] opacity-50 mb-6 block">How It Works</span>
+          <h2 className="font-serif text-4xl md:text-5xl text-metallic">From Upload to Action</h2>
+        </div>
+        {[
+          { icon: <UploadIcon className="w-10 h-10" strokeWidth={1} />, step: "01", title: "Upload", body: "Upload two versions of your contract — PDF, DOCX, or paste text directly. No formatting required." },
+          { icon: <GitCompare className="w-10 h-10" strokeWidth={1} />, step: "02", title: "Compare", body: "Our engine runs a clause-level diff across both documents, extracting every change with surgical precision." },
+          { icon: <MessageSquareText className="w-10 h-10" strokeWidth={1} />, step: "03", title: "Analyse", body: "AI translates each change into plain English, scores severity, and flags which party each clause favours." },
+          { icon: <Download className="w-10 h-10" strokeWidth={1} />, step: "04", title: "Act", body: "Export your analysis, share with your team, negotiate from a position of knowledge — not guesswork." },
+        ].map((panel, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            className="border-t border-mint/15 pt-10 mb-12"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-5xl font-serif font-bold text-metallic leading-none opacity-80">{panel.step}</span>
+              <div className="text-mint">{panel.icon}</div>
+            </div>
+            <h3 className="font-serif text-3xl mb-4 text-metallic">{panel.title}</h3>
+            <div className="w-12 h-px bg-mint/40 mb-4" />
+            <p className="text-base font-normal text-body opacity-70 leading-relaxed">{panel.body}</p>
+          </motion.div>
         ))}
-      </HorizontalScroll>
+      </div>
 
       {/* Features */}
-      <section id="features" className="relative z-10 py-40 px-6 md:px-12 max-w-[90rem] mx-auto w-full">
+      <section id="features" className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-12 max-w-[90rem] mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -277,7 +308,7 @@ export default function HomePage({ proMode }: HomePageProps) {
         >
           <div className="text-center mb-20">
             <span className="text-xs uppercase tracking-[0.3em] opacity-50 mb-6 block">Features</span>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-7xl mb-6 uppercase tracking-normal text-metallic">Understand Everything</h2>
+            <h2 className="font-serif text-4xl md:text-5xl xl:text-7xl mb-6 uppercase tracking-normal text-metallic">Understand Everything</h2>
             <p className="text-lg md:text-xl opacity-80 font-normal text-body max-w-2xl mx-auto">Empowers you to negotiate with confidence by highlighting the differences that actually matter.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24">
@@ -300,7 +331,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="relative z-10 py-40 px-6 md:px-12 max-w-7xl mx-auto w-full">
+      <section id="pricing" className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-12 max-w-7xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -309,7 +340,7 @@ export default function HomePage({ proMode }: HomePageProps) {
         >
           <div className="text-center mb-20">
             <span className="text-xs uppercase tracking-[0.3em] opacity-50 mb-6 block">Pricing</span>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-7xl mb-6 uppercase tracking-normal text-metallic">Simple Pricing</h2>
+            <h2 className="font-serif text-4xl md:text-5xl xl:text-7xl mb-6 uppercase tracking-normal text-metallic">Simple Pricing</h2>
             <p className="text-lg md:text-xl opacity-80 font-normal text-body max-w-2xl mx-auto">Choose the plan that fits your needs. No hidden fees or complex legal jargon here either.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-7xl mx-auto">
@@ -347,7 +378,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       </section>
 
       {/* Docs / API */}
-      <section id="docs" className="relative z-10 py-40 px-6 md:px-12 max-w-[90rem] mx-auto w-full">
+      <section id="docs" className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-12 max-w-[90rem] mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -356,7 +387,7 @@ export default function HomePage({ proMode }: HomePageProps) {
         >
           <div className="max-w-4xl">
             <span className="text-xs uppercase tracking-[0.3em] opacity-50 mb-6 block">API</span>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-7xl mb-8 uppercase tracking-normal text-metallic">Developer API</h2>
+            <h2 className="font-serif text-4xl md:text-5xl xl:text-7xl mb-8 uppercase tracking-normal text-metallic">Developer API</h2>
             <p className="text-lg md:text-xl opacity-80 font-normal text-body mb-12 leading-relaxed max-w-2xl">
               ContractDiff exposes a comprehensive REST API for uploading contracts, comparing versions, and retrieving AI-powered analysis results. Every endpoint is scoped per user and secured with JWT.
             </p>
@@ -374,12 +405,12 @@ export default function HomePage({ proMode }: HomePageProps) {
                 </div>
               ))}
             </div>
-            <div className="flex items-start gap-6 p-8 border border-mint/10 bg-mint/5 mb-12">
+            <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 p-6 md:p-8 border border-mint/10 bg-mint/5 mb-12">
               <Server className="w-6 h-6 text-mint mt-1 shrink-0" strokeWidth={1} />
               <div>
                 <h3 className="text-lg font-serif mb-2 text-metallic">Self-Hosted by Design</h3>
                 <p className="font-normal text-body opacity-70 text-sm leading-relaxed mb-3">You deploy the server on your own infrastructure. Documents, analyses, and AI calls stay within your network. Your API key never reaches the client.</p>
-                <div className="flex flex-wrap gap-6 text-xs font-mono opacity-60">
+                <div className="flex flex-wrap gap-4 md:gap-6 text-xs font-mono opacity-60">
                   <span className="flex items-center gap-2"><Lock className="w-3 h-3" /> Your data</span>
                   <span className="flex items-center gap-2"><Server className="w-3 h-3" /> Your server</span>
                   <span className="flex items-center gap-2"><Users className="w-3 h-3" /> Your users</span>
@@ -398,7 +429,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       </section>
 
       {/* Contact */}
-      <section id="contact" className="relative z-10 py-40 px-6 md:px-12 max-w-4xl mx-auto w-full">
+      <section id="contact" className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-12 max-w-4xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

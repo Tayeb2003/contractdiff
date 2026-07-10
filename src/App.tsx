@@ -31,6 +31,7 @@ function BackgroundVideo() {
           style={{
             filter: 'contrast(1.2) saturate(1.25) brightness(1.2)',
             opacity: active === i ? 1 : 0,
+            objectPosition: 'center 30%',
           }}
           autoPlay={i === 0}
           muted

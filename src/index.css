@@ -64,3 +64,18 @@ body {
 .text-body {
   color: #DCE6E0;
 }
+
+/* Background video responsive handling */
+@media (max-width: 768px) {
+  .animate-kenburns {
+    object-fit: cover;
+    object-position: center 25%;
+  }
+}
+
+@media (min-width: 769px) {
+  .animate-kenburns {
+    object-fit: cover;
+    object-position: center center;
+  }
+}

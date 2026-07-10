@@ -509,8 +509,8 @@ export default function DocumentationPage() {
             className="mb-20 p-8 md:p-10 border border-mint/20 bg-mint/5 scroll-mt-40"
           >
             <SectionTitle icon={<Server className="w-6 h-6" strokeWidth={1} />}>Prerequisites</SectionTitle>
-            <p className="font-normal text-body leading-relaxed mb-6 ml-11">Before you start, make sure you have:</p>
-            <ul className="space-y-4 ml-11">
+            <p className="font-normal text-body leading-relaxed mb-6 ml-0 sm:ml-11">Before you start, make sure you have:</p>
+            <ul className="space-y-4 ml-0 sm:ml-11">
               {[
                 ['Node.js', 'v18 or higher installed on your machine or server.'],
                 ['npm', 'Comes with Node.js — used to install dependencies.'],
@@ -548,7 +548,7 @@ export default function DocumentationPage() {
             className="mb-20 p-8 md:p-10 border border-mint/20 scroll-mt-40"
           >
             <SectionTitle icon={<Terminal className="w-6 h-6" strokeWidth={1} />}>Quick Start (Local Development)</SectionTitle>
-            <div className="ml-11">
+            <div className="ml-0 sm:ml-11">
               <CodeBlock>
                 <code className="block text-mint/80 mb-2"><span className="opacity-50">{'# Clone the repository'}</span></code>
                 <code className="block text-mint/80 mb-2">{'git clone <repository-url> contractdiff'}</code>
@@ -624,7 +624,7 @@ export default function DocumentationPage() {
             className="mb-20 p-8 md:p-10 border border-mint/20 scroll-mt-40"
           >
             <SectionTitle icon={<Key className="w-6 h-6" strokeWidth={1} />}>Bring Your Own API Key</SectionTitle>
-            <div className="ml-11 w-full">
+            <div className="ml-0 sm:ml-11 w-full">
               <p className="font-normal text-body leading-relaxed mb-8">
                 Users supply their own provider key through the <strong>Settings</strong> page or
                 the <InlineCode>PUT /api/auth/key</InlineCode> endpoint. Pick one provider — Google
@@ -727,7 +727,7 @@ export default function DocumentationPage() {
             className="mb-20 scroll-mt-40"
           >
             <SectionTitle icon={<Server className="w-6 h-6" strokeWidth={1} />}>Environment Variables</SectionTitle>
-            <div className="ml-11">
+            <div className="ml-0 sm:ml-11">
               <p className="font-normal text-body mb-6 max-w-3xl">
                 Copy <InlineCode>.env.example</InlineCode> to <InlineCode>.env.local</InlineCode> and configure.
                 Only <InlineCode>PORT</InlineCode>, <InlineCode>APP_URL</InlineCode>, and{' '}
@@ -784,7 +784,7 @@ NVIDIA_API_KEY=
             className="mb-20 p-8 md:p-10 border border-mint/20 scroll-mt-40"
           >
             <SectionTitle icon={<Lock className="w-6 h-6" strokeWidth={1} />}>Authentication</SectionTitle>
-            <div className="ml-11">
+            <div className="ml-0 sm:ml-11">
               <p className="font-normal text-body leading-relaxed mb-6">
                 All protected endpoints require a JWT token passed via the{' '}
                 <InlineCode>Authorization</InlineCode> header. Each user signs up or logs in to get
@@ -805,7 +805,7 @@ NVIDIA_API_KEY=
           {/* ── Endpoints ── */}
           <div id="endpoints" className="mb-20 scroll-mt-40">
             <SectionTitle icon={<FileCode className="w-6 h-6" strokeWidth={1} />}>Endpoints</SectionTitle>
-            <div className="ml-11 space-y-16">
+            <div className="ml-0 sm:ml-11 space-y-16">
               {endpoints.map((ep, i) => (
                 <motion.div
                   key={i}
@@ -860,7 +860,7 @@ NVIDIA_API_KEY=
             className="mb-20 p-8 md:p-10 border border-mint/20 bg-mint/5 scroll-mt-40"
           >
             <SectionTitle icon={<Key className="w-6 h-6" strokeWidth={1} />}>Per-User Keys</SectionTitle>
-            <div className="ml-11">
+            <div className="ml-0 sm:ml-11">
               <p className="font-normal text-body leading-relaxed mb-6">
                 Each authenticated user stores their own AI provider key, used only for their own
                 analyses. Two endpoints manage this — neither ever returns the key value back.
@@ -939,7 +939,7 @@ NVIDIA_API_KEY=
             className="mb-20 border border-mint/10 p-8 scroll-mt-40"
           >
             <SectionTitle icon={<AlertTriangle className="w-6 h-6" strokeWidth={1} />}>Error Codes</SectionTitle>
-            <ul className="ml-11 space-y-3 text-sm font-mono">
+            <ul className="ml-0 sm:ml-11 space-y-3 text-sm font-mono">
               {[
                 ['400', 'Bad Request', 'Missing or invalid request body / validation failure'],
                 ['401', 'Unauthorized', 'Missing or invalid JWT token'],
@@ -958,7 +958,7 @@ NVIDIA_API_KEY=
                 </li>
               ))}
             </ul>
-            <p className="ml-11 mt-6 text-xs text-body font-normal">
+            <p className="ml-0 sm:ml-11 mt-6 text-xs text-body font-normal">
               All errors are returned as JSON: <InlineCode>{'{"error":"..."}'}</InlineCode>. The
               forgot-password endpoint intentionally always returns 200 to avoid account enumeration.
             </p>

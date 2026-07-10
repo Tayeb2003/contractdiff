@@ -11,7 +11,7 @@ const dotenv = await import('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '..', '.env.local') });
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
 
 // CORS — allow the app origin plus any comma-separated ALLOWED_ORIGINS for third-party developers.
 // Set ALLOWED_ORIGINS=* to permit any origin (not recommended for production with credentials).
