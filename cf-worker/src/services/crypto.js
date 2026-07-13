@@ -1,4 +1,4 @@
-import { createCrypto } from '../../shared/crypto.js'
+import { createCrypto } from '../../../shared/crypto.js'
 import { getEnv } from '../env.js'
 
 // Cloudflare Worker sources the secret from env bindings via getEnv(); the edge

@@ -45,29 +45,6 @@ export function createCrypto(getSecret) {
       return PREFIX + bytesToB64(iv) + ':' + bytesToB64(new Uint8Array(ct))
     },
 
-    // Decrypt a stored API key. Plaintext (legacy) values are returned unchanged.
-    async decryptApiKey(stored) {
-      if (!stored) return ''
-      if (!stored.startsWith(PREFIX)) return stored
-      const key = await deriveKey()
-      if (!key) {
-        console.warn('[security] API_KEY_ENCRYPTION_SECRET is not set — cannot decrypt stored API keys.')
-        return ''
-      }
-      try {
-        // Strip the prefix, then the remainder is `<ivB64>:<ctB64>` (tag appended).
-        const rest = stored.slice(PREFIX.length)
-        const [ivB64, ctB64] = rest.split(':')
-        const iv = b64ToBytes(ivB64)
-        const ct = b64ToBytes(ctB64)
-        const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct)
-        return new TextDecoder().decode(pt)
-      } catch {
-        return ''
-      }
-    },
-
-    // Decrypt a stored API key. Plaintext (legacy) values are returned unchanged.
     async decryptApiKey(stored) {
       if (!stored) return ''
       if (!stored.startsWith(PREFIX)) return stored
