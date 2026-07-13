@@ -26,39 +26,44 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <section className="min-h-screen pt-32 pb-20 px-6 md:px-12 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-mint animate-spin" strokeWidth={1} />
+      <section className="min-h-screen pt-[112px] pb-20 px-6 md:px-16 flex items-center justify-center">
+        <div className="glass-panel p-12 rounded-xl text-center max-w-md mx-auto">
+          <span className="material-symbols-outlined text-gold text-4xl mb-6 animate-gold-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>
+            settings_input_svideo
+          </span>
+          <h2 className="font-serif text-2xl mb-3 text-on-surface">Loading History</h2>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="min-h-screen pt-32 pb-20 px-6 md:px-12 max-w-4xl mx-auto w-full">
+    <section className="min-h-screen pt-[112px] pb-20 px-6 md:px-16 max-w-[1280px] mx-auto w-full">
       <div className="flex items-center justify-between mb-12">
         <div>
-          <h1 className="font-serif text-3xl md:text-4xl mb-2 text-metallic">Analysis History</h1>
-          <p className="text-sm opacity-70 font-normal text-body">View your past contract comparisons</p>
+          <h1 className="font-serif text-3xl md:text-4xl mb-2 text-on-surface">Analysis History</h1>
+          <p className="text-sm opacity-70 font-normal text-on-surface-variant">View your past contract comparisons</p>
         </div>
         <Link
           to="/upload"
-          className="px-6 py-3 bg-mint text-black text-xs uppercase tracking-[0.2em] font-medium hover:bg-white transition-colors"
+          className="px-6 py-3 bg-gold text-on-gold text-xs font-label-caps text-label-caps uppercase tracking-[0.2em] font-semibold hover:bg-gold-fixed transition-colors rounded"
         >
           New Analysis
         </Link>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 border border-red-400/30 mb-8">
+        <div className="flex items-center gap-3 p-4 glass-panel rounded-lg mb-8 border border-red-400/30">
           <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" strokeWidth={1.5} />
-          <p className="text-sm opacity-80">{error}</p>
+          <p className="text-sm opacity-80 text-red-400">{error}</p>
         </div>
       )}
 
       {analyses.length === 0 && !error && (
         <div className="text-center py-20">
-          <FileText className="w-12 h-12 mx-auto mb-6 opacity-30" strokeWidth={1} />
-          <p className="text-lg font-normal text-body opacity-60 mb-4">No analyses yet</p>
-          <Link to="/upload" className="text-sm uppercase tracking-[0.2em] border-b border-mint pb-1">
+          <span className="material-symbols-outlined text-on-surface-variant/30 text-4xl mb-6">description</span>
+          <p className="text-lg font-normal text-on-surface-variant opacity-60 mb-4">No analyses yet</p>
+          <Link to="/upload" className="font-label-caps text-label-caps text-gold border-b border-gold pb-1">
             Compare Your First Contract
           </Link>
         </div>
@@ -69,26 +74,26 @@ export default function HistoryPage() {
           <Link
             key={a.id}
             to={`/analysis/${a.id}`}
-            className="group flex items-center justify-between p-5 border border-mint/10 hover:border-mint/30 transition-all duration-300"
+            className="group flex items-center justify-between p-5 glass-panel rounded-lg border border-outline/20 hover:border-gold/40 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-start gap-4 min-w-0">
               <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
-                a.status === 'completed' ? 'bg-mint' :
+                a.status === 'completed' ? 'bg-gold' :
                 a.status === 'failed' ? 'bg-red-400' :
                 'bg-yellow-400 animate-pulse'
               }`} />
               <div className="min-w-0">
-                <p className="font-medium truncate">{a.doc_a_name} vs {a.doc_b_name}</p>
-                <p className="text-xs opacity-60 mt-1 flex items-center gap-2">
-                  <Clock className="w-3 h-3" strokeWidth={1.5} />
+                <p className="font-medium text-on-surface truncate">{a.doc_a_name} vs {a.doc_b_name}</p>
+                <p className="text-xs opacity-60 mt-1 flex items-center gap-2 text-on-surface-variant">
+                  <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
                   {new Date(a.created_at).toLocaleDateString()} &middot; {a.status}
                 </p>
                 {a.summary && (
-                  <p className="text-sm opacity-70 mt-2 line-clamp-1 font-normal text-body">{a.summary}</p>
+                  <p className="text-sm opacity-70 mt-2 line-clamp-1 font-normal text-on-surface-variant">{a.summary}</p>
                 )}
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 opacity-30 group-hover:opacity-100 transition-opacity shrink-0 ml-4" strokeWidth={1} />
+            <span className="material-symbols-outlined text-on-surface-variant/30 group-hover:opacity-100 transition-opacity shrink-0 ml-4" style={{ fontVariationSettings: "'FILL' 1" }}>chevron_right</span>
           </Link>
         ))}
       </div>

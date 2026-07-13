@@ -1,0 +1,6 @@
+# SPA fallback for all routes except static assets
+/assets/*  /assets/:splat  200
+/favicon.svg  /favicon.svg  200
+/manifest.json  /manifest.json  200
+/hero-background.mp4  /hero-background.mp4  200
+/*  /index.html  200

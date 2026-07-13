@@ -20,7 +20,7 @@ export default function LoginPage() {
       navigate('/upload');
     } catch (err: any) {
       if (err.message === 'Failed to fetch') {
-        setError('Cannot reach the server. Make sure the backend is running (npm run dev:server).');
+        setError('Cannot reach the server. Make sure the backend is running.');
       } else {
         setError(err.message);
       }
@@ -30,52 +30,54 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="min-h-screen pt-32 pb-20 px-6 md:px-12 max-w-md mx-auto w-full flex flex-col justify-center">
+    <section className="min-h-screen pt-[112px] pb-20 px-6 md:px-16 max-w-md mx-auto w-full flex flex-col justify-center">
       <div className="text-center mb-12">
-        <h1 className="font-serif text-3xl md:text-4xl mb-4 text-metallic">Welcome Back</h1>
-        <p className="text-sm opacity-70 font-normal text-body">Sign in to access your contract analyses</p>
+        <h1 className="font-serif text-on-surface mb-4" style={{ fontSize: 'clamp(32px, 5vw, 48px)' }}>
+          Welcome Back
+        </h1>
+        <p className="text-sm opacity-70 font-normal text-on-surface-variant">Sign in to access your contract analyses</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
         {error && (
-          <div className="p-3 border border-red-400/30 text-sm text-red-400">{error}</div>
+          <div className="p-3 glass-panel border border-red-400/30 text-sm text-red-400">{error}</div>
         )}
         <div className="space-y-2">
-          <label className="block text-sm font-medium tracking-wide uppercase opacity-80">Email</label>
+          <label className="block font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase opacity-80">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-transparent border-b border-mint/30 px-0 py-3 focus:outline-none focus:border-mint transition-colors"
+            className="w-full bg-transparent border-b border-outline/50 px-0 py-3 focus:outline-none focus:border-gold transition-colors text-on-surface placeholder:text-on-surface-variant/40"
             required
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-medium tracking-wide uppercase opacity-80">Password</label>
+          <label className="block font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase opacity-80">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-transparent border-b border-mint/30 px-0 py-3 focus:outline-none focus:border-mint transition-colors"
+            className="w-full bg-transparent border-b border-outline/50 px-0 py-3 focus:outline-none focus:border-gold transition-colors text-on-surface placeholder:text-on-surface-variant/40"
             required
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-mint text-black font-medium uppercase tracking-[0.2em] text-sm hover:bg-white transition-colors duration-300 disabled:opacity-30 cursor-pointer"
+          className="w-full py-4 bg-gold text-on-gold font-label-caps text-label-caps uppercase tracking-[0.2em] text-sm hover:bg-gold-fixed transition-colors duration-300 disabled:opacity-30 cursor-pointer rounded"
         >
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading ? 'Signing in…' : 'Sign In'}
         </button>
       </form>
 
       <p className="text-right mt-4 text-sm opacity-60">
-        <Link to="/forgot-password" className="text-mint hover:underline">Forgot password?</Link>
+        <Link to="/forgot-password" className="text-gold hover:underline">Forgot password?</Link>
       </p>
 
       <p className="text-center mt-8 text-sm opacity-60">
         Don't have an account?{' '}
-        <Link to="/signup" className="text-mint hover:underline">Sign up</Link>
+        <Link to="/signup" className="text-gold hover:underline">Sign up</Link>
       </p>
     </section>
   );

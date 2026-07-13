@@ -17,9 +17,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 
-// Replace https://your-server.com with your actual server URL.
-// If running locally, use http://localhost:3001
-const BASE = 'https://your-server.com';
+const BASE = 'https://contractdiff-api.syedmohammedtayeb.workers.dev';
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -224,7 +222,7 @@ const endpoints: Endpoint[] = [
     path: '/api/analyses/create',
     auth: true,
     description:
-      'Create a new comparison analysis from two uploaded document IDs. The user must have set their own AI key in Settings first (see PUT /api/auth/key). Runs asynchronously — poll GET /api/analyses/:id until status is "completed" or "failed".',
+      'Create a new comparison analysis from two uploaded document IDs. The user must have set their own AI key in Settings first (see PUT /api/auth/key). Runs asynchronously \u2014 poll GET /api/analyses/:id until status is "completed" or "failed".',
     request: `curl -X POST ${BASE}/api/analyses/create \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
@@ -353,40 +351,36 @@ const toc = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Small presentational helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
 function SectionTitle({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
     <div className="flex items-start gap-5">
-      <span className="text-mint mt-1 shrink-0">{icon}</span>
-      <h2 className="text-2xl font-serif mb-6 text-metallic">{children}</h2>
+      <span className="text-gold mt-1 shrink-0">{icon}</span>
+      <h2 className="font-serif mb-6 text-on-surface" style={{ fontSize: 'clamp(22px, 2.5vw, 30px)' }}>{children}</h2>
     </div>
   );
 }
 
 function CodeBlock({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-[#0a0a0a] border border-mint/10 p-4 md:p-6 font-mono text-sm overflow-x-auto whitespace-pre-wrap break-words">
+    <div className="bg-surface-container-lowest border border-outline/20 p-4 md:p-6 font-mono text-sm overflow-x-auto whitespace-pre-wrap break-words rounded-lg">
       {children}
     </div>
   );
 }
 
 function InlineCode({ children }: { children: ReactNode }) {
-  return <code className="text-mint bg-mint/10 px-1.5 py-0.5 text-sm">{children}</code>;
+  return <code className="text-gold bg-gold/10 px-1.5 py-0.5 text-sm rounded">{children}</code>;
 }
 
 function MethodBadge({ method }: { method: Method }) {
   const styles: Record<Method, string> = {
-    GET: 'text-mint border-mint/40',
-    POST: 'text-white border-mint/60 bg-mint/10',
+    GET: 'text-on-surface border-secondary/40',
+    POST: 'text-on-gold border-gold/60 bg-gold/10',
     PUT: 'text-yellow-200 border-yellow-400/40 bg-yellow-400/5',
     DELETE: 'text-red-300 border-red-400/40 bg-red-400/5',
   };
   return (
-    <span className={`text-xs font-mono font-bold px-3 py-1.5 border ${styles[method]}`}>
+    <span className={`font-label-caps text-label-caps px-3 py-1.5 border ${styles[method]}`}>
       {method}
     </span>
   );
@@ -394,26 +388,26 @@ function MethodBadge({ method }: { method: Method }) {
 
 export default function DocumentationPage() {
   return (
-    <div className="min-h-screen pt-32 pb-20 relative z-10">
-      <div className="px-6 md:px-12 max-w-6xl mx-auto w-full lg:flex lg:gap-16">
-        {/* ── Sticky Table of Contents ── */}
-        <aside className="hidden lg:block w-56 shrink-0">
-          <div className="sticky top-32">
+    <div className="min-h-screen pt-[112px] pb-20 relative z-10">
+      <div className="px-6 md:px-16 max-w-[1280px] mx-auto w-full lg:flex lg:gap-16">
+        {/*  Sticky Table of Contents */}
+        <aside className="hidden lg:block w-64 shrink-0">
+          <div className="sticky top-[112px]">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] opacity-70 hover:opacity-100 mb-10 transition-opacity"
+              className="inline-flex items-center gap-2 font-label-caps text-label-caps opacity-70 hover:opacity-100 mb-10 transition-opacity cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" /> Back Home
+              <span className="material-symbols-outlined">arrow_back</span> Back Home
             </Link>
             {toc.map((group) => (
               <div key={group.group} className="mb-8">
-                <p className="text-xs uppercase tracking-[0.2em] text-mint/50 mb-3">{group.group}</p>
+                <p className="font-label-caps text-label-caps text-gold/60 uppercase tracking-[0.2em] mb-3">{group.group}</p>
                 <ul className="space-y-2">
                   {group.items.map((item) => (
                     <li key={item.id}>
                       <a
                         href={`#${item.id}`}
-                        className="text-sm opacity-70 hover:opacity-100 hover:text-mint transition-opacity"
+                        className="text-sm opacity-70 hover:opacity-100 hover:text-gold transition-opacity font-body-md"
                       >
                         {item.label}
                       </a>
@@ -428,25 +422,25 @@ export default function DocumentationPage() {
         <section className="flex-1 min-w-0">
           <Link
             to="/"
-            className="lg:hidden inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] opacity-70 hover:opacity-100 mb-12 transition-opacity"
+            className="lg:hidden inline-flex items-center gap-2 font-label-caps text-label-caps opacity-70 hover:opacity-100 mb-12 transition-opacity cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" /> Back Home
+            <span className="material-symbols-outlined">arrow_back</span> Back Home
           </Link>
 
-          {/* ── Hero ── */}
+          {/* Hero */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="mb-24"
           >
-            <span className="text-xs uppercase tracking-[0.3em] text-mint/60 mb-6 block">
+            <span className="font-label-caps text-label-caps text-gold/70 uppercase tracking-[0.3em] mb-6 block">
               API Reference
             </span>
-            <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 text-metallic">
+            <h1 className="text-display-lg font-display-lg text-on-surface mb-8 leading-tight">
               Integrate ContractDiff
             </h1>
-            <p className="text-lg md:text-xl font-normal text-body leading-relaxed max-w-3xl">
+            <p className="text-body-lg text-on-surface-variant leading-relaxed max-w-3xl">
               ContractDiff is a self-hosted REST API. You deploy the server on your own
               infrastructure, users authenticate via JWT to upload contracts, and the engine
               returns AI-powered clause-by-clause analysis. Every user's data is scoped to their
@@ -455,7 +449,7 @@ export default function DocumentationPage() {
             </p>
           </motion.div>
 
-          {/* ── Architecture ── */}
+          {/* Architecture */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -465,7 +459,7 @@ export default function DocumentationPage() {
           >
             {[
               {
-                icon: <Download className="w-10 h-10 mx-auto mb-5 text-mint" strokeWidth={1} />,
+                icon: <span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>download</span>,
                 title: '1. Get the Code',
                 body: (
                   <>
@@ -475,7 +469,7 @@ export default function DocumentationPage() {
                 ),
               },
               {
-                icon: <Server className="w-10 h-10 mx-auto mb-5 text-mint" strokeWidth={1} />,
+                icon: <span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>dns</span>,
                 title: '2. Start the Server',
                 body: (
                   <>
@@ -485,35 +479,35 @@ export default function DocumentationPage() {
                 ),
               },
               {
-                icon: <Terminal className="w-10 h-10 mx-auto mb-5 text-mint" strokeWidth={1} />,
+                icon: <span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>,
                 title: '3. Hit the API',
-                body: <>Authenticate, upload documents, create analyses, and poll for results — all via HTTP.</>,
+                body: <>Authenticate, upload documents, create analyses, and poll for results \u2014 all via HTTP.</>,
               },
             ].map((card) => (
-              <div key={card.title} className="border border-mint/10 p-6 md:p-8 text-center">
+              <div key={card.title} className="glass-panel p-8 rounded-xl text-center">
                 {card.icon}
-                <h3 className="text-lg font-serif mb-3 uppercase tracking-wide text-metallic">
+                <h3 className="font-serif mb-3 text-on-surface uppercase tracking-wide" style={{ fontSize: 'clamp(18px, 1.4vw, 22px)' }}>
                   {card.title}
                 </h3>
-                <p className="font-normal text-body text-sm leading-relaxed">{card.body}</p>
+                <p className="text-body-md text-on-surface-variant leading-relaxed text-sm">{card.body}</p>
               </div>
             ))}
           </motion.div>
 
-          {/* ── Prerequisites ── */}
+          {/* Prerequisites */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.13 }}
             id="prerequisites"
-            className="mb-20 p-8 md:p-10 border border-mint/20 bg-mint/5 scroll-mt-40"
+            className="mb-20 glass-panel p-8 md:p-10 rounded-xl scroll-mt-40"
           >
-            <SectionTitle icon={<Server className="w-6 h-6" strokeWidth={1} />}>Prerequisites</SectionTitle>
-            <p className="font-normal text-body leading-relaxed mb-6 ml-0 sm:ml-11">Before you start, make sure you have:</p>
+            <SectionTitle icon={<span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>dns</span>}>Prerequisites</SectionTitle>
+            <p className="text-body-md text-on-surface-variant leading-relaxed mb-6 ml-0 sm:ml-11">Before you start, make sure you have:</p>
             <ul className="space-y-4 ml-0 sm:ml-11">
               {[
                 ['Node.js', 'v18 or higher installed on your machine or server.'],
-                ['npm', 'Comes with Node.js — used to install dependencies.'],
+                ['npm', 'Comes with Node.js \u2014 used to install dependencies.'],
                 ['Git', 'To clone the repository.'],
                 [
                   'An AI Provider Key',
@@ -525,49 +519,49 @@ export default function DocumentationPage() {
                 ],
                 [
                   'Build Tools',
-                  'Required to compile <code className="text-mint bg-mint/10 px-1">better-sqlite3</code> during <code className="text-mint bg-mint/10 px-1">npm install</code>. On macOS: Xcode Command Line Tools (<code className="text-mint bg-mint/10 px-1">xcode-select --install</code>). On Linux: <code className="text-mint bg-mint/10 px-1">build-essential</code> + Python. On Windows: Visual Studio Build Tools + Python.',
+                  'Required to compile <InlineCode>better-sqlite3</InlineCode> during <InlineCode>npm install</InlineCode>. On macOS: Xcode Command Line Tools (<InlineCode>xcode-select --install</InlineCode>). On Linux: <InlineCode>build-essential</InlineCode> + Python. On Windows: Visual Studio Build Tools + Python.',
                 ],
               ].map(([label, desc], i) => (
                 <li key={i} className="flex items-start gap-4">
-                  <span className="text-mint text-lg leading-none mt-0.5">•</span>
+                  <span className="text-gold text-lg leading-none mt-0.5">\u2022</span>
                   <div>
-                    <span className="font-medium text-sm text-mint">{label}</span>
-                    <span className="text-body text-sm"> — {desc}</span>
+                    <span className="font-medium text-sm text-gold">{label}</span>
+                    <span className="text-body text-sm text-on-surface-variant"> \u2014 {desc}</span>
                   </div>
                 </li>
               ))}
             </ul>
           </motion.div>
 
-          {/* ── Quick Start ── */}
+          {/* Quick Start */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.16 }}
             id="quickstart"
-            className="mb-20 p-8 md:p-10 border border-mint/20 scroll-mt-40"
+            className="mb-20 glass-panel p-8 md:p-10 rounded-xl scroll-mt-40"
           >
-            <SectionTitle icon={<Terminal className="w-6 h-6" strokeWidth={1} />}>Quick Start (Local Development)</SectionTitle>
+            <SectionTitle icon={<span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>}>Quick Start (Local Development)</SectionTitle>
             <div className="ml-0 sm:ml-11">
               <CodeBlock>
-                <code className="block text-mint/80 mb-2"><span className="opacity-50">{'# Clone the repository'}</span></code>
-                <code className="block text-mint/80 mb-2">{'git clone <repository-url> contractdiff'}</code>
-                <code className="block text-mint/80 mb-2">cd contractdiff</code>
-                <code className="block text-mint/80 mb-3"><span className="opacity-50">{'# Install dependencies (requires build tools — see Prerequisites)'}</span></code>
-                <code className="block text-mint/80 mb-2">npm install</code>
-                <code className="block text-mint/80 mb-3"><span className="opacity-50">{'# Set up environment'}</span></code>
-                <code className="block text-mint/80 mb-2">{'# macOS / Linux'}</code>
-                <code className="block text-mint/80 mb-2">cp .env.example .env.local</code>
-                <code className="block text-mint/80 mb-2">{'# Windows'}</code>
-                <code className="block text-mint/80 mb-3">copy .env.example .env.local</code>
-                <code className="block text-mint/80 mb-3"><span className="opacity-50">{'# Edit .env.local — set JWT_SECRET and optionally a server-level AI key'}</span></code>
-                <code className="block text-mint/80 mb-3"><span className="opacity-50">{'# Start both frontend + backend together'}</span></code>
-                <code className="block text-mint/80 mb-2">npm run dev</code>
-                <code className="block text-mint/80 mb-3"><span className="opacity-50">{'# ...or run them separately'}</span></code>
-                <code className="block text-mint/80 mb-2">{'npm run dev:server   # backend on :3001'}</code>
-                <code className="block text-mint/80">{'npm run dev:frontend # frontend on :3000'}</code>
+                <code className="block text-gold/80 mb-2"><span className="opacity-50">{'# Clone the repository'}</span></code>
+                <code className="block text-gold/80 mb-2">{'git clone <repository-url> contractdiff'}</code>
+                <code className="block text-gold/80 mb-2">cd contractdiff</code>
+                <code className="block text-gold/80 mb-3"><span className="opacity-50">{'# Install dependencies (requires build tools \u2014 see Prerequisites)'}</span></code>
+                <code className="block text-gold/80 mb-2">npm install</code>
+                <code className="block text-gold/80 mb-3"><span className="opacity-50">{'# Set up environment'}</span></code>
+                <code className="block text-gold/80 mb-2">{'# macOS / Linux'}</code>
+                <code className="block text-gold/80 mb-2">cp .env.example .env.local</code>
+                <code className="block text-gold/80 mb-2">{'# Windows'}</code>
+                <code className="block text-gold/80 mb-3">copy .env.example .env.local</code>
+                <code className="block text-gold/80 mb-3"><span className="opacity-50">{'# Edit .env.local \u2014 set JWT_SECRET and optionally a server-level AI key'}</span></code>
+                <code className="block text-gold/80 mb-3"><span className="opacity-50">{'# Start both frontend + backend together'}</span></code>
+                <code className="block text-gold/80 mb-2">npm run dev</code>
+                <code className="block text-gold/80 mb-3"><span className="opacity-50">{'# ...or run them separately'}</span></code>
+                <code className="block text-gold/80 mb-2">{'npm run dev:server   # backend on :3001'}</code>
+                <code className="block text-gold/80">{'npm run dev:frontend # frontend on :3000'}</code>
               </CodeBlock>
-              <p className="font-normal text-body text-sm leading-relaxed mt-4">
+              <p className="text-body-md text-on-surface-variant text-sm leading-relaxed mt-4">
                 The database (SQLite via <InlineCode>better-sqlite3</InlineCode>) is created
                 automatically on first run. Swagger UI becomes available at{' '}
                 <InlineCode>http://localhost:3001/api/docs</InlineCode>.
@@ -575,63 +569,67 @@ export default function DocumentationPage() {
             </div>
           </motion.div>
 
-          {/* ── AI Key Requirement ── */}
+          {/* AI Key Requirement */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.19 }}
             id="ai-service"
-            className="mb-20 p-8 md:p-10 border border-yellow-400/30 bg-yellow-400/5 scroll-mt-40"
+            className="mb-20 glass-panel border border-yellow-400/30 bg-yellow-400/5 rounded-xl scroll-mt-40"
           >
             <div className="flex items-start gap-5">
-              <AlertTriangle className="w-6 h-6 text-yellow-400 mt-1 shrink-0" strokeWidth={1.5} />
+              <span className="material-symbols-outlined text-yellow-400 text-2xl mt-1 shrink-0">warning</span>
               <div>
-                <h2 className="text-2xl font-serif mb-4 text-yellow-300">AI Service — Per-User Keys</h2>
-                <p className="font-normal text-body leading-relaxed mb-4">
+                <h2 className="font-serif mb-4 text-yellow-300" style={{ fontSize: 'clamp(22px, 2.5vw, 30px)' }}>
+                  AI Service \u2014 Per-User Keys
+                </h2>
+                <p className="text-body-md text-on-surface-variant leading-relaxed mb-4">
                   Clause analysis (diffing, severity scoring, plain-English summaries) uses an AI
-                  provider <strong>each user supplies</strong> — Google Gemini, OpenAI, Anthropic,
+                  provider <strong>each user supplies</strong> \u2014 Google Gemini, OpenAI, Anthropic,
                   or NVIDIA NIM. The server calls the provider's API with the user's key, which
                   they store via <InlineCode>PUT /api/auth/key</InlineCode> (or in the Settings page).
                 </p>
-                <p className="font-normal text-body leading-relaxed mb-4">
+                <p className="text-body-md text-on-surface-variant leading-relaxed mb-4">
                   Without a personal key set, creating an analysis returns a <InlineCode>400</InlineCode>{' '}
                   error. Auth, uploads, deletion, and listing still work without one.
                 </p>
                 <ul className="space-y-2 mb-4">
-                  <li className="flex items-start gap-3 text-sm font-normal text-body">
-                    <span className="text-green-400 mt-0.5">✓</span>
+                  <li className="flex items-start gap-3 text-sm text-on-surface-variant">
+                    <span className="text-green-400 mt-0.5">\u2713</span>
                     <span>The server starts and handles auth, uploads, listing, and deletion without any AI key.</span>
                   </li>
-                  <li className="flex items-start gap-3 text-sm font-normal text-body">
-                    <span className="text-yellow-400 mt-0.5">⚠</span>
+                  <li className="flex items-start gap-3 text-sm text-on-surface-variant">
+                    <span className="text-yellow-400 mt-0.5">\u26A0</span>
                     <span>Analysis creation (<InlineCode>POST /api/analyses/create</InlineCode>) requires the user to have set their own key first.</span>
                   </li>
-                  <li className="flex items-start gap-3 text-sm font-normal text-body">
-                    <span className="text-green-400 mt-0.5">✓</span>
-                    <span>Keys are stored encrypted-at-rest by the database and called only from the server — never exposed to the browser.</span>
+                  <li className="flex items-start gap-3 text-sm text-on-surface-variant">
+                    <span className="text-green-400 mt-0.5">\u2713</span>
+                    <span>Keys are stored encrypted-at-rest by the database and called only from the server \u2014 never exposed to the browser.</span>
                   </li>
                 </ul>
               </div>
             </div>
           </motion.div>
 
-          {/* ── Bring Your Own Key ── */}
+          {/* Bring Your Own Key */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.21 }}
             id="byok"
-            className="mb-20 p-8 md:p-10 border border-mint/20 scroll-mt-40"
+            className="mb-20 glass-panel p-8 md:p-10 rounded-xl scroll-mt-40"
           >
-            <SectionTitle icon={<Key className="w-6 h-6" strokeWidth={1} />}>Bring Your Own API Key</SectionTitle>
+            <SectionTitle icon={<span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>}>Bring Your Own API Key</SectionTitle>
             <div className="ml-0 sm:ml-11 w-full">
-              <p className="font-normal text-body leading-relaxed mb-8">
+              <p className="text-body-md text-on-surface-variant leading-relaxed mb-8">
                 Users supply their own provider key through the <strong>Settings</strong> page or
-                the <InlineCode>PUT /api/auth/key</InlineCode> endpoint. Pick one provider — Google
-                Gemini, OpenAI, Anthropic, or NVIDIA NIM — and paste the key.
+                the <InlineCode>PUT /api/auth/key</InlineCode> endpoint. Pick one provider \u2014 Google
+                Gemini, OpenAI, Anthropic, or NVIDIA NIM \u2014 and paste the key.
               </p>
 
-              <h3 className="text-sm uppercase tracking-[0.2em] text-mint/60 mb-4">1. Choose a provider & grab a key</h3>
+              <h3 className="font-label-caps text-label-caps text-gold/60 uppercase tracking-[0.2em] mb-4">
+                1. Choose a provider & grab a key
+              </h3>
 
               {[
                 {
@@ -664,52 +662,54 @@ export default function DocumentationPage() {
                 },
               ].map((p, idx, arr) => (
                 <div key={p.envVar} className={idx < arr.length - 1 ? 'mb-6' : 'mb-8'}>
-                  <p className="text-sm font-medium text-mint mb-2">{p.name}</p>
+                  <p className="font-medium text-sm text-gold mb-2">{p.name}</p>
                   <CodeBlock>
-                    <code className="block text-mint/80 mb-2">
+                    <code className="block text-gold/80 mb-2">
                       <span className="opacity-50">{'# macOS / Linux (bash)'}</span>
                     </code>
-                    <code className="block text-mint/80 mb-2">export {p.envVar}="{p.sample}"</code>
-                    <code className="block text-mint/80 mb-2">
+                    <code className="block text-gold/80 mb-2">export {p.envVar}="{p.sample}"</code>
+                    <code className="block text-gold/80 mb-2">
                       <span className="opacity-50">{'# Windows (PowerShell)'}</span>
                     </code>
-                    <code className="block text-mint/80 mb-2">$env:{p.envVar}="{p.sample}"</code>
-                    <code className="block text-mint/80 mb-2">
+                    <code className="block text-gold/80 mb-2">$env:{p.envVar}="{p.sample}"</code>
+                    <code className="block text-gold/80 mb-2">
                       <span className="opacity-50">{'# Windows (CMD)'}</span>
                     </code>
-                    <code className="block text-mint/80">set {p.envVar}={p.sample}</code>
+                    <code className="block text-gold/80">set {p.envVar}={p.sample}</code>
                   </CodeBlock>
-                  <p className="text-xs text-body mt-2">
-                    Get a key at <InlineCode>{p.url}</InlineCode> — {p.note}
+                  <p className="text-xs text-on-surface-variant mt-2">
+                    Get a key at <InlineCode>{p.url}</InlineCode> \u2014 {p.note}
                   </p>
                 </div>
               ))}
 
-              <h3 className="text-sm uppercase tracking-[0.2em] text-mint/60 mb-4">2. Or store it via the API (per-user)</h3>
+              <h3 className="font-label-caps text-label-caps text-gold/60 uppercase tracking-[0.2em] mb-4">
+                2. Or store it via the API (per-user)
+              </h3>
               <CodeBlock>
-                <code className="block text-mint/80 mb-2">
+                <code className="block text-gold/80 mb-2">
                   <span className="opacity-50">{'# Store a key for the authenticated user'}</span>
                 </code>
-                <code className="block text-mint/80 mb-2">{'curl -X PUT '}{BASE}{'/api/auth/key \\'}</code>
-                <code className="block text-mint/80 mb-2">{'  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\'}</code>
-                <code className="block text-mint/80 mb-2">{'  -H "Content-Type: application/json" \\'}</code>
-                <code className="block text-mint/80 mb-2">{"  -d '{\"apiKey\":\"AIzaSyD-...\", \"provider\":\"gemini\"}'"}</code>
-                <code className="block text-mint/80 mb-3">&nbsp;</code>
-                <code className="block text-mint/80 mb-2">
+                <code className="block text-gold/80 mb-2">{'curl -X PUT '}{BASE}{'/api/auth/key \\'}</code>
+                <code className="block text-gold/80 mb-2">{'  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\'}</code>
+                <code className="block text-gold/80 mb-2">{'  -H "Content-Type: application/json" \\'}</code>
+                <code className="block text-gold/80 mb-2">{"  -d '{\"apiKey\":\"AIzaSyD-...\", \"provider\":\"gemini\"}'"}</code>
+                <code className="block text-gold/80 mb-3">&nbsp;</code>
+                <code className="block text-gold/80 mb-2">
                   <span className="opacity-50">{'# Clear it later (pass empty string)'}</span>
                 </code>
-                <code className="block text-mint/80">{'curl -X PUT '}{BASE}{'/api/auth/key -H "Authorization: Bearer YOUR_JWT_TOKEN" -H "Content-Type: application/json" -d ' + "'{\"apiKey\":\"\"}'"}</code>
+                <code className="block text-gold/80">{'curl -X PUT '}{BASE}{'/api/auth/key -H "Authorization: Bearer YOUR_JWT_TOKEN" -H "Content-Type: application/json" -d ' + "'{\"apiKey\":\"\"}'"}</code>
               </CodeBlock>
-              <p className="text-xs text-body mt-2">
+              <p className="text-xs text-on-surface-variant mt-2">
                 <span className="opacity-70">Windows CMD users: replace trailing </span>
-                <code className="text-mint bg-mint/10 px-1">\</code>
+                <InlineCode>\</InlineCode>
                 <span className="opacity-70"> with </span>
-                <code className="text-mint bg-mint/10 px-1">^</code>
+                <InlineCode>^</InlineCode>
                 <span className="opacity-70"> for line continuation, or paste the whole command as a single line.</span>
               </p>
 
-              <div className="flex items-start gap-3 text-sm text-body mt-6">
-                <Shield className="w-4 h-4 text-mint mt-0.5 shrink-0" strokeWidth={1.5} />
+              <div className="flex items-start gap-3 text-sm text-on-surface-variant mt-6">
+                <span className="material-symbols-outlined text-gold mt-0.5 shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>
                 <span>
                   Keys are called <strong>only from the server</strong>, never exposed to the
                   browser. Each user's key is used only for their own analyses.
@@ -718,7 +718,7 @@ export default function DocumentationPage() {
             </div>
           </motion.div>
 
-          {/* ── Environment Variables ── */}
+          {/* Environment Variables */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -726,26 +726,26 @@ export default function DocumentationPage() {
             id="env"
             className="mb-20 scroll-mt-40"
           >
-            <SectionTitle icon={<Server className="w-6 h-6" strokeWidth={1} />}>Environment Variables</SectionTitle>
+            <SectionTitle icon={<span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>dns</span>}>Environment Variables</SectionTitle>
             <div className="ml-0 sm:ml-11">
-              <p className="font-normal text-body mb-6 max-w-3xl">
+              <p className="font-normal text-body md:text-on-surface-variant leading-relaxed mb-6 max-w-3xl">
                 Copy <InlineCode>.env.example</InlineCode> to <InlineCode>.env.local</InlineCode> and configure.
                 Only <InlineCode>PORT</InlineCode>, <InlineCode>APP_URL</InlineCode>, and{' '}
                 <InlineCode>JWT_SECRET</InlineCode> are required for the server to run.
               </p>
               <CodeBlock>
-                <pre className="text-mint/80">{`# ── Server ──────────────────────────────────────────
+                <pre className="text-gold/80">{`# \u2500\u2500\u2500 Server \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 PORT=3001
-# Frontend URL (used for CORS — change in production)
+# Frontend URL (used for CORS \u2014 change in production)
 APP_URL=http://localhost:3000
 # Optional: comma-separated extra allowed CORS origins (or * for any)
 # ALLOWED_ORIGINS=https://app.example.com,https://staging.example.com
 
-# ── Auth ────────────────────────────────────────────
+# \u2500\u2500\u2500 Auth \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 # Generate a strong random string for production
 JWT_SECRET=contractdiff-dev-secret-change-in-production
 
-# ── AI Providers (optional server-level, see BYOK) ──
+# \u2500\u2500\u2500 AI Providers (optional server-level, see BYOK) \u2500\u2500\u2500
 # Priority if multiple set: GEMINI -> OPENAI -> ANTHROPIC -> NVIDIA
 GEMINI_API_KEY=
 OPENAI_API_KEY=
@@ -755,18 +755,18 @@ ANTHROPIC_API_KEY=
 NVIDIA_API_KEY=
 # NVIDIA_MODEL=meta/llama-3.3-70b-instruct
 
-# ── Email (optional — enables password reset) ───────
+# \u2500\u2500\u2500 Email (optional \u2014 enables password reset) \u2500\u2500
 # SMTP_HOST=smtp.mailtrap.io
-# SMTP_PORT=587
-# SMTP_SECURE=false
-# SMTP_USER=
-# SMTP_PASS=
-# SMTP_FROM=`}</pre>
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=`}</pre>
               </CodeBlock>
-              <div className="flex items-start gap-3 text-sm text-body mt-6">
-                <Shield className="w-4 h-4 text-mint mt-0.5 shrink-0" strokeWidth={1.5} />
+              <div className="flex items-start gap-3 text-sm text-on-surface-variant mt-6">
+                <span className="material-symbols-outlined text-gold mt-0.5 shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>
                 <span>
-                  The <InlineCode>JWT_SECRET</InlineCode> signs auth tokens — change it for
+                  The <InlineCode>JWT_SECRET</InlineCode> signs auth tokens \u2014 change it for
                   production. <InlineCode>APP_URL</InlineCode> controls which origin can make
                   cross-origin requests. SMTP settings are optional and only enable the
                   forgot-password email flow.
@@ -775,26 +775,26 @@ NVIDIA_API_KEY=
             </div>
           </motion.div>
 
-          {/* ── Authentication ── */}
+          {/* Authentication */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
             id="auth"
-            className="mb-20 p-8 md:p-10 border border-mint/20 scroll-mt-40"
+            className="mb-20 glass-panel p-8 md:p-10 rounded-xl scroll-mt-40"
           >
-            <SectionTitle icon={<Lock className="w-6 h-6" strokeWidth={1} />}>Authentication</SectionTitle>
+            <SectionTitle icon={<span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>}>Authentication</SectionTitle>
             <div className="ml-0 sm:ml-11">
-              <p className="font-normal text-body leading-relaxed mb-6">
+              <p className="font-normal text-body md:text-on-surface-variant leading-relaxed mb-6">
                 All protected endpoints require a JWT token passed via the{' '}
                 <InlineCode>Authorization</InlineCode> header. Each user signs up or logs in to get
                 their own token. Every database query filters by{' '}
-                <InlineCode>user_id</InlineCode> — users cannot access each other's data.
+                <InlineCode>user_id</InlineCode> \u2014 users cannot access each other's data.
               </p>
               <CodeBlock>
-                <code className="block text-mint/80">Authorization: Bearer eyJhbGciOiJIUzI1NiIs...</code>
+                <code className="block text-gold/80">Authorization: Bearer eyJhbGciOiJIUzI1NiIs...</code>
               </CodeBlock>
-              <p className="font-normal text-body text-sm leading-relaxed mt-4">
+              <p className="font-normal text-body md:text-on-surface-variant text-sm leading-relaxed mt-4">
                 Tokens do not expire server-side (rotate by changing <InlineCode>JWT_SECRET</InlineCode>).
                 Obtain one from <InlineCode>POST /api/auth/signup</InlineCode> or{' '}
                 <InlineCode>POST /api/auth/login</InlineCode>.
@@ -802,9 +802,9 @@ NVIDIA_API_KEY=
             </div>
           </motion.div>
 
-          {/* ── Endpoints ── */}
+          {/* Endpoints */}
           <div id="endpoints" className="mb-20 scroll-mt-40">
-            <SectionTitle icon={<FileCode className="w-6 h-6" strokeWidth={1} />}>Endpoints</SectionTitle>
+            <SectionTitle icon={<span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>file_copy</span>}>Endpoints</SectionTitle>
             <div className="ml-0 sm:ml-11 space-y-16">
               {endpoints.map((ep, i) => (
                 <motion.div
@@ -816,33 +816,33 @@ NVIDIA_API_KEY=
                 >
                   <div className="flex items-center gap-4 mb-4 flex-wrap">
                     <MethodBadge method={ep.method} />
-                    <code className="text-lg font-mono text-mint/90 break-all">{ep.path}</code>
+                    <code className="text-lg font-mono text-gold/90 break-all">{ep.path}</code>
                     {ep.auth ? (
-                      <span className="ml-auto text-xs uppercase tracking-[0.2em] text-mint/40 flex items-center gap-1.5">
-                        <Lock className="w-3 h-3" /> Auth
+                      <span className="ml-auto font-label-caps text-label-caps text-gold/40 flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span> Auth
                       </span>
                     ) : (
-                      <span className="ml-auto text-xs uppercase tracking-[0.2em] text-body/40">
+                      <span className="ml-auto font-label-caps text-label-caps text-on-surface-variant/40">
                         Public
                       </span>
                     )}
                   </div>
-                  <p className="font-normal text-body mb-6 max-w-3xl">{ep.description}</p>
+                  <p className="font-normal text-body md:text-on-surface-variant mb-6 max-w-3xl">{ep.description}</p>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div>
-                      <div className="flex items-center gap-2 mb-3 text-xs uppercase tracking-[0.2em] opacity-50">
-                        <Terminal className="w-3.5 h-3.5" strokeWidth={1.5} /> Request
+                      <div className="flex items-center gap-2 mb-3 font-label-caps text-label-caps opacity-50">
+                        <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span> Request
                       </div>
                       <CodeBlock>
-                        <pre className="text-mint/80">{ep.request}</pre>
+                        <pre className="text-gold/80">{ep.request}</pre>
                       </CodeBlock>
                     </div>
                     <div>
-                      <div className="flex items-center gap-2 mb-3 text-xs uppercase tracking-[0.2em] opacity-50">
-                        <FileCode className="w-3.5 h-3.5" strokeWidth={1.5} /> Response
+                      <div className="flex items-center gap-2 mb-3 font-label-caps text-label-caps opacity-50">
+                        <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>file_copy</span> Response
                       </div>
                       <CodeBlock>
-                        <pre className="text-mint/80">{ep.response}</pre>
+                        <pre className="text-gold/80">{ep.response}</pre>
                       </CodeBlock>
                     </div>
                   </div>
@@ -851,38 +851,38 @@ NVIDIA_API_KEY=
             </div>
           </div>
 
-          {/* ── Per-User Keys ── */}
+          {/* Per-User Keys */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.28 }}
             id="customkeys"
-            className="mb-20 p-8 md:p-10 border border-mint/20 bg-mint/5 scroll-mt-40"
+            className="mb-20 glass-panel p-8 md:p-10 rounded-xl scroll-mt-40"
           >
-            <SectionTitle icon={<Key className="w-6 h-6" strokeWidth={1} />}>Per-User Keys</SectionTitle>
+            <SectionTitle icon={<span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>}>Per-User Keys</SectionTitle>
             <div className="ml-0 sm:ml-11">
-              <p className="font-normal text-body leading-relaxed mb-6">
+              <p className="font-normal text-body md:text-on-surface-variant leading-relaxed mb-6">
                 Each authenticated user stores their own AI provider key, used only for their own
-                analyses. Two endpoints manage this — neither ever returns the key value back.
+                analyses. Two endpoints manage this \u2014 neither ever returns the key value back.
               </p>
               <div className="space-y-4">
                 <CodeBlock>
-                  <code className="block text-mint/80 mb-2"><span className="opacity-50">{'# Check whether a key is set'}</span></code>
-                  <code className="block text-mint/80 mb-2">{'curl ' + BASE + '/api/auth/key -H "Authorization: Bearer YOUR_JWT_TOKEN"'}</code>
-                  <code className="block text-mint/80 mb-3">&nbsp;</code>
-                  <code className="block text-mint/80 mb-2"><span className="opacity-50">{'# {"hasKey":true,"provider":"gemini"}'}</span></code>
+                  <code className="block text-gold/80 mb-2"><span className="opacity-50">{'# Check whether a key is set'}</span></code>
+                  <code className="block text-gold/80 mb-2">{'curl ' + BASE + '/api/auth/key -H "Authorization: Bearer YOUR_JWT_TOKEN"'}</code>
+                  <code className="block text-gold/80 mb-3">&nbsp;</code>
+                  <code className="block text-gold/80 mb-3"><span className="opacity-50">{'# {"hasKey":true,"provider":"gemini"}'}</span></code>
                 </CodeBlock>
                 <CodeBlock>
-                  <code className="block text-mint/80 mb-2"><span className="opacity-50">{'# Store or replace the key'}</span></code>
-                  <code className="block text-mint/80 mb-2">{'curl -X PUT ' + BASE + '/api/auth/key \\'}</code>
-                  <code className="block text-mint/80 mb-2">{'  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\'}</code>
-                  <code className="block text-mint/80 mb-2">{'  -H "Content-Type: application/json" \\'}</code>
-                  <code className="block text-mint/80 mb-2">{"  -d '{\"apiKey\":\"sk-...\", \"provider\":\"openai\"}'"}</code>
-                  <code className="block text-mint/80 mb-3">&nbsp;</code>
-                  <code className="block text-mint/80"><span className="opacity-50">{'# {"success":true,"provider":"openai"}'}</span></code>
+                  <code className="block text-gold/80 mb-2"><span className="opacity-50">{'# Store or replace the key'}</span></code>
+                  <code className="block text-gold/80 mb-2">{'curl -X PUT ' + BASE + '/api/auth/key \\'}</code>
+                  <code className="block text-gold/80 mb-2">{'  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\'}</code>
+                  <code className="block text-gold/80 mb-2">{'  -H "Content-Type: application/json" \\'}</code>
+                  <code className="block text-gold/80 mb-2">{"  -d '{\"apiKey\":\"sk-...\", \"provider\":\"openai\"}'"}</code>
+                  <code className="block text-gold/80 mb-3">&nbsp;</code>
+                  <code className="block text-gold/80"><span className="opacity-50">{'# {"success":true,"provider":"openai"}'}</span></code>
                 </CodeBlock>
               </div>
-              <p className="font-normal text-body text-sm leading-relaxed mt-4">
+              <p className="font-normal text-body md:text-on-surface-variant text-sm leading-relaxed mt-4">
                 Allowed providers: <InlineCode>gemini</InlineCode>, <InlineCode>openai</InlineCode>,{' '}
                 <InlineCode>anthropic</InlineCode>, <InlineCode>nvidia</InlineCode>. An empty{' '}
                 <InlineCode>apiKey</InlineCode> clears the stored key.
@@ -890,55 +890,59 @@ NVIDIA_API_KEY=
             </div>
           </motion.div>
 
-          {/* ── Known Limitations ── */}
+          {/* Known Limitations */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.0 }}
             id="limitations"
-            className="mb-20 p-8 md:p-10 border border-yellow-400/20 scroll-mt-40"
+            className="mb-20 glass-panel border border-yellow-400/20 rounded-xl scroll-mt-40"
           >
-            <div className="flex items-start gap-5">
-              <AlertTriangle className="w-6 h-6 text-yellow-400 mt-1 shrink-0" strokeWidth={1.5} />
-              <div>
-                <h2 className="text-2xl font-serif mb-4 text-yellow-300">Known Limitations</h2>
-                <p className="font-normal text-body leading-relaxed mb-6">
-                  These are <strong>not yet implemented</strong> in the current server. Be aware when
-                  planning your integration:
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-                  {[
-                    ['No pagination', 'List endpoints return all results at once'],
-                    ['No webhooks', 'Clients must poll for analysis completion'],
-                    ['No rate limiting', 'No throttle on request volume'],
-                    ['No public API keys', 'Only JWT token auth (requires user login)'],
-                    ['No file sanitization', 'Uploads are parsed but not virus-scanned'],
-                    ['No HTTPS by default', 'Requires a reverse proxy (nginx/Caddy) in production'],
-                    ['SQLite only', 'Single-node — not designed for horizontal scaling'],
-                    ['No token expiry', 'JWTs do not expire server-side'],
-                  ].map(([title, desc], i) => (
-                    <div key={i} className="flex items-start gap-3 py-2">
-                      <span className="text-yellow-400 text-xs mt-0.5">⚠</span>
-                      <div>
-                        <span className="text-sm font-medium text-mint">{title}</span>
-                        <p className="text-xs text-body">{desc}</p>
+            <div className="p-8 md:p-10">
+              <div className="flex items-start gap-5">
+                <span className="material-symbols-outlined text-yellow-400 text-2xl mt-1 shrink-0">warning</span>
+                <div>
+                  <h2 className="font-serif mb-4 text-yellow-300" style={{ fontSize: 'clamp(22px, 2.5vw, 30px)' }}>
+                    Known Limitations
+                  </h2>
+                  <p className="font-normal text-body md:text-on-surface-variant leading-relaxed mb-6">
+                    These are <strong>not yet implemented</strong> in the current server. Be aware when
+                    planning your integration:
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                    {[
+                      ['No pagination', 'List endpoints return all results at once'],
+                      ['No webhooks', 'Clients must poll for analysis completion'],
+                      ['No rate limiting', 'No throttle on request volume'],
+                      ['No public API keys', 'Only JWT token auth (requires user login)'],
+                      ['No file sanitization', 'Uploads are parsed but not virus-scanned'],
+                      ['No HTTPS by default', 'Requires a reverse proxy (nginx/Caddy) in production'],
+                      ['SQLite only', 'Single-node \u2014 not designed for horizontal scaling'],
+                      ['No token expiry', 'JWTs do not expire server-side'],
+                    ].map(([title, desc], i) => (
+                      <div key={i} className="flex items-start gap-3 py-2">
+                        <span className="text-yellow-400 text-xs mt-0.5">\u26A0</span>
+                        <div>
+                          <span className="font-medium text-sm text-gold">{title}</span>
+                          <p className="text-xs text-on-surface-variant">{desc}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* ── Error Codes ── */}
+          {/* Error Codes */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.05 }}
             id="errors"
-            className="mb-20 border border-mint/10 p-8 scroll-mt-40"
+            className="mb-20 glass-panel p-8 rounded-xl scroll-mt-40"
           >
-            <SectionTitle icon={<AlertTriangle className="w-6 h-6" strokeWidth={1} />}>Error Codes</SectionTitle>
+            <SectionTitle icon={<span className="material-symbols-outlined text-gold text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>}>Error Codes</SectionTitle>
             <ul className="ml-0 sm:ml-11 space-y-3 text-sm font-mono">
               {[
                 ['400', 'Bad Request', 'Missing or invalid request body / validation failure'],
@@ -946,69 +950,73 @@ NVIDIA_API_KEY=
                 ['404', 'Not Found', 'Resource does not exist or belongs to another user'],
                 ['409', 'Conflict', 'Email already registered'],
                 ['413', 'File Too Large', 'Document exceeds the 20 MB limit'],
-                ['500', 'Server Error', 'Internal failure — check server logs'],
+                ['500', 'Server Error', 'Internal failure \u2014 check server logs'],
               ].map(([code, title, desc], i) => (
-                <li key={i} className="flex items-start gap-3 font-normal text-body">
-                  <span className="text-mint shrink-0 w-10">{code}</span>
-                  <span className="opacity-60">—</span>
+                <li key={i} className="flex items-start gap-3 font-normal text-on-surface-variant">
+                  <span className="text-gold shrink-0 w-10">{code}</span>
+                  <span className="opacity-60">\u2014</span>
                   <div>
-                    <span className="opacity-90 text-mint">{title}</span>
-                    <span className="text-body"> — {desc}</span>
+                    <span className="opacity-90 text-gold">{title}</span>
+                    <span className="text-on-surface-variant"> \u2014 {desc}</span>
                   </div>
                 </li>
               ))}
             </ul>
-            <p className="ml-0 sm:ml-11 mt-6 text-xs text-body font-normal">
+            <p className="ml-0 sm:ml-11 mt-6 text-xs text-on-surface-variant font-normal">
               All errors are returned as JSON: <InlineCode>{'{"error":"..."}'}</InlineCode>. The
               forgot-password endpoint intentionally always returns 200 to avoid account enumeration.
             </p>
           </motion.div>
 
-          {/* ── Interactive Docs note ── */}
+          {/* Interactive Docs note */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.08 }}
-            className="mb-20 p-8 border border-mint/10 bg-mint/5 scroll-mt-40 flex items-start gap-5"
+            className="mb-20 glass-panel p-8 rounded-xl scroll-mt-40 flex items-start gap-5"
           >
-            <BookOpen className="w-6 h-6 text-mint mt-1 shrink-0" strokeWidth={1} />
+            <span className="material-symbols-outlined text-gold text-2xl mt-1 shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
             <div>
-              <h3 className="text-lg font-serif mb-2 text-metallic">Interactive API Explorer</h3>
-              <p className="font-normal text-body text-sm leading-relaxed mb-4">
-                Once the server is running, an interactive Swagger UI is available in-browser — no
+              <h3 className="font-serif mb-2 text-on-surface" style={{ fontSize: 'clamp(18px, 1.4vw, 22px)' }}>
+                Interactive API Explorer
+              </h3>
+              <p className="font-normal text-body md:text-on-surface-variant text-sm leading-relaxed mb-4">
+                Once the server is running, an interactive Swagger UI is available in-browser \u2014 no
                 need to copy curl commands by hand. Also try the liveness probe for health checks.
               </p>
-              <div className="flex flex-wrap gap-6 text-xs font-mono text-body">
-                <span className="flex items-center gap-2"><BookOpen className="w-3 h-3 text-mint" /> http://localhost:3001/api/docs</span>
-                <span className="flex items-center gap-2"><FileCode className="w-3 h-3 text-mint" /> http://localhost:3001/api/openapi.json</span>
-                <span className="flex items-center gap-2"><HeartPulse className="w-3 h-3 text-mint" /> http://localhost:3001/api/health</span>
+              <div className="flex flex-wrap gap-6 text-xs font-mono text-on-surface-variant">
+                <span className="flex items-center gap-2"><span className="material-symbols-outlined text-gold text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span> https://contractdiff-api.syedmohammedtayeb.workers.dev/api/docs</span>
+                <span className="flex items-center gap-2"><span className="material-symbols-outlined text-gold text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>file_copy</span> https://contractdiff-api.syedmohammedtayeb.workers.dev/api/openapi.json</span>
+                <span className="flex items-center gap-2"><span className="material-symbols-outlined text-gold text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span> https://contractdiff-api.syedmohammedtayeb.workers.dev/api/health</span>
               </div>
             </div>
           </motion.div>
 
-          {/* ── CTA ── */}
+          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.1 }}
-            className="text-center border-t border-mint/10 pt-16"
+            className="text-center border-t border-outline/20 pt-16"
           >
-            <h2 className="font-serif text-3xl md:text-4xl mb-6 text-metallic">Ready to run it yourself?</h2>
-            <p className="text-lg font-normal text-body mb-10 max-w-lg mx-auto">
-              Clone the repo, set your JWT secret, start the server — and your API is live.
+            <h2 className="font-serif text-on-surface mb-6" style={{ fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              Ready to run it yourself?
+            </h2>
+            <p className="text-body-lg text-on-surface-variant mb-10 max-w-lg mx-auto">
+              Clone the repo, set your JWT secret, start the server \u2014 and your API is live.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <Link
                 to="/upload"
-                className="px-10 py-4 bg-mint text-black font-medium uppercase tracking-[0.2em] text-sm hover:bg-white transition-colors"
+                className="px-10 py-4 bg-gold text-on-gold font-label-caps text-label-caps uppercase tracking-[0.2em] text-sm hover:bg-gold-fixed transition-colors rounded"
               >
                 Try the Frontend
               </Link>
               <Link
                 to="/#contact"
-                className="inline-flex items-center gap-3 text-sm uppercase tracking-[0.2em] border-b border-mint pb-1 hover:text-white hover:border-white transition-colors"
+                className="inline-flex items-center gap-3 font-label-caps text-label-caps uppercase tracking-[0.2em] border-b border-gold pb-1 hover:text-on-surface hover:border-on-surface transition-colors"
               >
-                Get Help <ArrowRight className="w-4 h-4" />
+                Get Help <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_forward</span>
               </Link>
             </div>
           </motion.div>

@@ -66,37 +66,37 @@ export default function SettingsPage() {
   };
 
   return (
-    <section className="min-h-screen pt-32 pb-20 px-6 md:px-12 max-w-2xl mx-auto w-full">
-      <h1 className="font-serif text-3xl md:text-4xl mb-2 text-metallic">Settings</h1>
-      <p className="text-sm opacity-70 font-normal text-body mb-12">Manage your account preferences</p>
+    <section className="min-h-screen pt-[112px] pb-20 px-6 md:px-16 max-w-2xl mx-auto w-full">
+      <h1 className="font-serif text-3xl md:text-4xl mb-2 text-on-surface">Settings</h1>
+      <p className="text-sm opacity-70 font-normal text-on-surface-variant mb-12">Manage your account preferences</p>
 
-      <div className="border border-mint/10 p-6 md:p-8">
+      <div className="glass-panel p-6 md:p-8 rounded-xl">
         <div className="flex items-center gap-3 mb-6">
-          <Key className="w-6 h-6 text-mint" strokeWidth={1.5} />
+          <span className="material-symbols-outlined text-gold text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>
           <div>
-            <h2 className="text-lg font-serif text-metallic">AI Provider & API Key</h2>
-            <p className="text-xs opacity-60 font-normal text-body mt-1">
+            <h2 className="text-lg font-serif text-on-surface">AI Provider & API Key</h2>
+            <p className="text-xs opacity-60 font-normal text-on-surface-variant mt-1">
               Bring your own API key for AI-powered analysis
             </p>
           </div>
         </div>
 
         {hasKey === true && (
-          <div className="mb-6 p-3 border border-mint/20 bg-mint/5 flex items-center gap-3">
-            <Check className="w-4 h-4 text-mint shrink-0" strokeWidth={2} />
-            <span className="text-sm text-mint/80">Your API key is configured</span>
+          <div className="mb-6 p-3 glass-panel border border-gold/30 flex items-center gap-3">
+            <span className="material-symbols-outlined text-gold shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+            <span className="text-sm text-gold/80">Your API key is configured</span>
           </div>
         )}
 
         <div className="mb-4">
-          <label className="block text-xs uppercase tracking-wide opacity-70 mb-2">Provider</label>
+          <label className="block font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase opacity-70 mb-2">Provider</label>
           <select
             value={provider}
             onChange={(e) => setProvider(e.target.value)}
-            className="w-full bg-transparent border border-mint/20 px-4 py-3 focus:outline-none focus:border-mint transition-colors text-sm"
+            className="w-full bg-transparent border border-outline/30 px-4 py-3 focus:outline-none focus:border-gold transition-colors text-sm text-on-surface"
           >
             {PROVIDERS.map((p) => (
-              <option key={p.id} value={p.id} className="bg-[#021A17] text-mint">
+              <option key={p.id} value={p.id} className="bg-surface text-on-surface">
                 {p.label}
               </option>
             ))}
@@ -108,14 +108,16 @@ export default function SettingsPage() {
             type={showKey ? 'text' : 'password'}
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            placeholder={`Paste your ${PROVIDERS.find((p) => p.id === provider)?.label} API key here...`}
-            className="w-full bg-transparent border border-mint/20 px-4 py-3 pr-12 focus:outline-none focus:border-mint transition-colors placeholder:text-mint/30 text-sm font-mono"
+            placeholder={`Paste your ${PROVIDERS.find((p) => p.id === provider)?.label} API key here…`}
+            className="w-full bg-transparent border border-outline/30 px-4 py-3 pr-12 focus:outline-none focus:border-gold transition-colors placeholder:text-on-surface-variant/40 text-sm font-mono text-on-surface"
           />
           <button
             onClick={() => setShowKey(!showKey)}
             className="absolute right-3 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-100 transition-opacity cursor-pointer"
           >
-            {showKey ? <EyeOff className="w-4 h-4" strokeWidth={1.5} /> : <Eye className="w-4 h-4" strokeWidth={1.5} />}
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+              {showKey ? 'visibility_off' : 'visibility'}
+            </span>
           </button>
         </div>
 
@@ -123,15 +125,17 @@ export default function SettingsPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-3 bg-mint text-black text-xs uppercase tracking-[0.2em] font-medium hover:bg-white transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-gold text-on-gold font-label-caps text-label-caps uppercase tracking-[0.2em] text-xs hover:bg-gold-fixed transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed rounded"
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} /> : 'Save Key'}
+            {saving ? (
+              <span className="flex items-center gap-2"><span className="material-symbols-outlined animate-spin" style={{ fontVariationSettings: "'FILL' 1" }}>sync</span> Saving…</span>
+            ) : 'Save Key'}
           </button>
           {hasKey && (
             <button
               onClick={handleRemove}
               disabled={saving}
-              className="px-6 py-3 border border-red-400/30 text-red-400 text-xs uppercase tracking-[0.2em] font-medium hover:bg-red-400/10 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+              className="px-6 py-3 border border-red-400/30 text-red-400 font-label-caps text-label-caps uppercase tracking-[0.2em] text-xs hover:bg-red-400/10 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed rounded"
             >
               Remove
             </button>
@@ -142,26 +146,26 @@ export default function SettingsPage() {
           <div className={`mt-4 p-3 flex items-start gap-3 text-sm ${
             message.type === 'error'
               ? 'bg-red-400/5 border border-red-400/20 text-red-400'
-              : 'bg-mint/5 border border-mint/20 text-mint/80'
+              : 'bg-gold/5 border border-gold/20 text-gold/80'
           }`}>
             {message.type === 'error' ? (
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" strokeWidth={1.5} />
+              <span className="material-symbols-outlined w-4 h-4 shrink-0 mt-0.5" strokeWidth={1.5}>error</span>
             ) : (
-              <Check className="w-4 h-4 shrink-0 mt-0.5" strokeWidth={1.5} />
+              <span className="material-symbols-outlined w-4 h-4 shrink-0 mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
             )}
             <span>{message.text}</span>
           </div>
         )}
 
-        <div className="mt-6 p-4 border border-mint/10 text-xs text-mint/50 leading-relaxed">
-          <p className="mb-2"><strong className="text-mint/70">Why bring your own key?</strong></p>
+        <div className="mt-6 p-4 glass-panel border border-outline/20 text-xs text-on-surface-variant/50 leading-relaxed">
+          <p className="mb-2"><strong className="text-gold/70">Why bring your own key?</strong></p>
           <p>Your API key is stored securely and used only when analyzing your contracts. Each user must supply their own key for their chosen provider — there is no shared server key.</p>
           <p className="mt-2">
             Get an API key:{' '}
             {PROVIDERS.map((p, i) => (
               <span key={p.id}>
                 {i > 0 && ', '}
-                <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-mint underline">{p.label}</a>
+                <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-gold underline">{p.label}</a>
               </span>
             ))}
           </p>

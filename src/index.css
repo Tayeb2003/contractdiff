@@ -1,72 +1,156 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
-  --color-mint: #94e8b4;
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Bodoni Moda", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-label-caps: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 16px;
+  --text-label-caps--letter-spacing: 0.1em;
+  --text-label-caps--font-weight: 600;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-headline-md: 32px;
+  --text-headline-md--line-height: 40px;
+  --text-headline-md--font-weight: 500;
+
+  --text-headline-lg: 48px;
+  --text-headline-lg--line-height: 56px;
+  --text-headline-lg--font-weight: 600;
+
+  --text-headline-lg-mobile: 32px;
+  --text-headline-lg-mobile--line-height: 40px;
+  --text-headline-lg-mobile--font-weight: 600;
+
+  --text-display-lg: 72px;
+  --text-display-lg--line-height: 80px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+
+  /* === ContractDiff / Lex Noir — premium dark teal + gold palette === */
+  --color-mint: #accdc8;            /* primary brand mint */
+  --color-gold: #e3c381;            /* Lex Noir tertiary — gold CTA accent */
+  --color-gold-deep: #c8a85a;
+  --color-gold-fixed: #ffdf9e;
+  --color-on-gold: #3f2e00;
+
+  --color-surface: #091614;          /* base background */
+  --color-surface-lowest: #05100f;
+  --color-surface-low: #111e1d;
+  --color-surface-container: #152221;
+  --color-surface-container-high: #202c2b;
+  --color-surface-container-highest: #2a3736;
+  --color-surface-bright: #2f3c3a;
+  --color-surface-dim: #091614;
+  --color-surface-variant: #2a3736;
+
+  --color-on-surface: #d7e5e3;
+  --color-on-surface-variant: #c1c8c6;
+  --color-secondary: #a0d0c9;
+  --color-on-secondary: #013733;
+  --color-on-secondary-fixed: #00201d;
+  --color-secondary-container: #1f4e49;
+  --color-secondary-fixed: #bcece5;
+  --color-primary-container: #0d2e2b;
+  --color-on-primary: #163532;
+  --color-on-primary-fixed: #00201d;
+  --color-primary-fixed: #c7e9e4;
+  --color-on-primary-fixed-variant: #2d4c49;
+
+  --color-outline: #8b9290;
+  --color-outline-variant: #414847;
+  --color-overlay-dark: rgba(9, 22, 20, 0.6);
 }
 
-html {
-  scroll-behavior: smooth;
+html { scroll-behavior: smooth; }
+html, body { background-color: #091614; color: #d7e5e3; }
+
+body {
+  font-family: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
+@layer base {
+  ::selection { background: #e3c381; color: #3f2e00; }
+}
+
+/* === Ken Burns animation kept from prior theme (unused now but available) === */
 @keyframes kenburns {
   0% { transform: scale(1) translate(0, 0); }
   50% { transform: scale(1.12) translate(-1.5%, -1.5%); }
   100% { transform: scale(1) translate(0, 0); }
 }
+.animate-kenburns { animation: kenburns 24s ease-in-out infinite; }
 
-.animate-kenburns {
-  animation: kenburns 24s ease-in-out infinite;
+/* === Glass panel — Lex Noir signature effect === */
+.glass-panel {
+  background: rgba(42, 55, 54, 0.22);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(160, 208, 201, 0.08);
+  border-left: 1px solid rgba(160, 208, 201, 0.08);
 }
 
-body {
-  background-color: #0a2e28;
-  @apply text-mint font-sans antialiased;
-}
-
-.bg-page {
-  background: transparent;
-}
-
-.text-metallic {
+/* === Hero overlay — diagonal teal wash === */
+.hero-overlay {
   background: linear-gradient(
     135deg,
-    #f8fffb 0%,
-    #e8fff8 5%,
-    #c8ffe8 10%,
-    #98f8d4 16%,
-    #60e8b0 24%,
-    #38e0a0 32%,
-    #18d890 40%,
-    #0cd088 48%,
-    #00c880 56%,
-    #00c078 64%,
-    #08c880 72%,
-    #20d090 78%,
-    #48e0a8 84%,
-    #80f0c8 90%,
-    #c0ffe8 95%,
-    #e8fff7 100%
+    rgba(9, 22, 20, 0.92) 0%,
+    rgba(9, 22, 20, 0.55) 50%,
+    rgba(9, 22, 20, 0.92) 100%
   );
+}
+
+/* === Metallic mint → gold gradient text (used sparingly — brand eyebrow + CTA text-on-gold illusions) === */
+.text-metallic {
+  background: linear-gradient(135deg, #f0fbf8 0%, #a8e6d2 20%, #6fc7b0 50%, #94e8b4 75%, #f0fbf8 100%);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow:
-    0 1px 3px rgba(0, 200, 128, 0.35),
-    0 2px 6px rgba(0, 192, 120, 0.28),
-    0 4px 12px rgba(8, 200, 128, 0.22),
-    0 8px 20px rgba(32, 208, 144, 0.16),
-    0 0 30px rgba(128, 240, 200, 0.18);
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-.text-body {
-  color: #DCE6E0;
+.text-gold {
+  color: #e3c381;
 }
 
-/* Background video responsive handling */
-.animate-kenburns {
-  object-fit: cover;
-  object-position: center center;
+/* === Subtle scan-line / breathing glow for glow discs === */
+@keyframes gold-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.95; }
 }
+.animate-gold-pulse { animation: gold-pulse 6s ease-in-out infinite; }
+
+@keyframes scroll-pulse {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50%       { transform: translateY(8px); opacity: 1; }
+}
+.scroll-indicator { animation: scroll-pulse 2s ease-in-out infinite; }
+
+/* === Premium "clipped" angled CTA support === */
+.cta-clip {
+  clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+}
+
+/* === Subtle gradient dividers === */
+.divider-metallic {
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(172, 205, 200, 0.6), transparent);
+}
+
+/* === Premium scroll bar === */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #091614; }
+::-webkit-scrollbar-thumb { background: #2a3736; border-radius: 0.125rem; }
+::-webkit-scrollbar-thumb:hover { background: #414847; }

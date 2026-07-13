@@ -6,6 +6,7 @@ export default function CustomCursor() {
   const [hovering, setHovering] = useState(false);
 
   useEffect(() => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
     let ringX = -100;
     let ringY = -100;
     let targetX = -100;

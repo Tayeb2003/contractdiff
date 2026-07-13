@@ -1,0 +1,219 @@
+import { logger } from './logger.js'
+import { getEnv } from '../env.js'
+
+const GEMINI_API_URL =
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
+const NVIDIA_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions'
+const FETCH_TIMEOUT_MS = 15_000
+
+async function geminiFetch(prompt, temperature, maxTokens, apiKey) {
+  if (!apiKey) return null
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+  try {
+    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature, maxOutputTokens: maxTokens },
+      }),
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      const errBody = await response.text().catch(() => 'unknown')
+      logger.warn('Gemini API error', { status: response.status, body: errBody.slice(0, 200) })
+      return null
+    }
+    const data = await response.json()
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null
+  } catch (err) {
+    logger.warn('Gemini API failed', { error: err instanceof Error ? err.message : String(err) })
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+async function chatFetch(prompt, temperature, maxTokens, apiKey, url, model) {
+  if (!apiKey) return null
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature,
+        max_tokens: maxTokens,
+      }),
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      const errBody = await response.text().catch(() => 'unknown')
+      logger.warn('Chat API error', { status: response.status, body: errBody.slice(0, 200) })
+      return null
+    }
+    const data = await response.json()
+    return data?.choices?.[0]?.message?.content || null
+  } catch (err) {
+    logger.warn('Chat API failed', { error: err instanceof Error ? err.message : String(err) })
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+async function anthropicFetch(prompt, temperature, maxTokens, apiKey, model) {
+  if (!apiKey) return null
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        temperature,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      const errBody = await response.text().catch(() => 'unknown')
+      logger.warn('Anthropic API error', { status: response.status, body: errBody.slice(0, 200) })
+      return null
+    }
+    const data = await response.json()
+    return data?.content?.[0]?.text || null
+  } catch (err) {
+    logger.warn('Anthropic API failed', { error: err instanceof Error ? err.message : String(err) })
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+async function callAI(prompt, temperature, maxTokens, config) {
+  const env = getEnv()
+  const openaiModel = env.OPENAI_MODEL || 'gpt-4o-mini'
+  const nvidiaModel = env.NVIDIA_MODEL || 'meta/llama-3.3-70b-instruct'
+  const anthropicModel = env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest'
+
+  switch (config.provider) {
+    case 'gemini':
+      return geminiFetch(prompt, temperature, maxTokens, config.key)
+    case 'openai':
+      return chatFetch(prompt, temperature, maxTokens, config.key, OPENAI_API_URL, openaiModel)
+    case 'nvidia':
+      return chatFetch(prompt, temperature, maxTokens, config.key, NVIDIA_API_URL, nvidiaModel)
+    case 'anthropic':
+      return anthropicFetch(prompt, temperature, maxTokens, config.key, anthropicModel)
+    default:
+      return null
+  }
+}
+
+function extractJson(text) {
+  const match = text.match(/\{[\s\S]*\}/)
+  if (!match) return null
+  try {
+    return JSON.parse(match[0])
+  } catch {
+    return null
+  }
+}
+
+export async function analyzeClause(before, after, config) {
+  const prompt = `You are a legal document analyst. Compare these two contract clauses and explain what changed.
+
+Original clause:
+"""
+${before}
+"""
+
+New clause:
+"""
+${after}
+"""
+
+Respond in JSON format:
+{
+  "plain_english_summary": "brief explanation of what changed in plain English",
+  "favors": "party_a" | "party_b" | "neutral" | "ambiguous",
+  "severity": "minor" | "moderate" | "major"
+}`
+
+  const raw = config ? await callAI(prompt, 0.2, 512, config) : null
+  if (raw) {
+    const parsed = extractJson(raw)
+    if (parsed?.plain_english_summary && parsed.favors && parsed.severity) return parsed
+  }
+  return generateLocalAnalysis(before, after)
+}
+
+export async function generateSummary(clauses, config) {
+  if (clauses.length === 0) return { summary: 'No clause changes were detected.' }
+  const changeCount = clauses.filter((c) => c.favors !== 'neutral').length
+  const fallback = {
+    summary: `${clauses.length} clause change${clauses.length !== 1 ? 's' : ''} detected. ${changeCount} change${changeCount !== 1 ? 's' : ''} may favor one party over the other. Review each clause carefully.`,
+  }
+  if (clauses.length <= 1) return fallback
+
+  const raw = config
+    ? await callAI(
+        `Summarize the following contract analysis into 3-5 bullet points:\n\n${JSON.stringify(clauses, null, 2)}\n\nRespond in JSON format:\n{\n  "summary": "3-5 bullet point executive summary"\n}`,
+        0.3,
+        512,
+        config
+      )
+    : null
+  if (raw) {
+    const parsed = extractJson(raw)
+    if (parsed?.summary) return parsed
+  }
+  return fallback
+}
+
+function generateLocalAnalysis(before, after) {
+  const beforeLen = before.length
+  const afterLen = after.length
+  const diff = beforeLen - afterLen
+  const absDiff = Math.abs(diff)
+
+  let severity = 'minor'
+  if (absDiff > 200) severity = 'major'
+  else if (absDiff > 50) severity = 'moderate'
+
+  let summary
+  if (beforeLen === 0 && afterLen > 0) {
+    summary = `A new clause was added (${afterLen} characters).`
+  } else if (beforeLen > 0 && afterLen === 0) {
+    summary = `An existing clause was removed (${beforeLen} characters).`
+  } else if (before === after) {
+    summary = 'No material change detected between these clauses.'
+  } else if (diff < -200) {
+    summary = `The clause was significantly expanded (from ${beforeLen} to ${afterLen} characters).`
+  } else if (diff > 200) {
+    summary = `The clause was significantly shortened (from ${beforeLen} to ${afterLen} characters).`
+  } else {
+    summary = 'The clause was modified. Review the changes carefully.'
+  }
+
+  const favoredTermsBefore = (before.match(/(indemnify|hold harmless|waive|liability|shall not)/gi) || []).length
+  const favoredTermsAfter = (after.match(/(indemnify|hold harmless|waive|liability|shall not)/gi) || []).length
+  let favors = 'neutral'
+  if (favoredTermsAfter > favoredTermsBefore + 1) favors = 'party_a'
+  else if (favoredTermsBefore > favoredTermsAfter + 1) favors = 'party_b'
+  else if (absDiff > 100) favors = 'ambiguous'
+
+  return { plain_english_summary: summary, favors, severity }
+}

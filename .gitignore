@@ -12,3 +12,8 @@ coverage/
 edge/bundle.js
 uploads/
 # public/bg-video.mp4
+ContractDiff-Deck.*
+How-We-Built-It.*
+cf-worker/.wrangler/
+auth
+auth-wal
