@@ -2,6 +2,11 @@ import { diff_match_patch } from 'diff-match-patch'
 
 const dmp = new diff_match_patch()
 
+// A blank line marks the boundary between clauses. When we cross one
+// mid-change we flush the current section so each changed clause is
+// reported on its own.
+const GAP_RE = /\n\s*\n/
+
 export interface DiffChunk {
   textBefore: string
   textAfter: string
@@ -16,7 +21,7 @@ export interface ChangedSection {
 }
 
 export function computeDiff(textA: string, textB: string): DiffChunk[] {
-  const diffs = dmp.diff_main(textA, textB)
+  const diffs = dmp.diff_main(textA || '', textB || '')
   dmp.diff_cleanupSemantic(diffs)
   return diffs.map(([op, text]) => ({
     textBefore: op === -1 || op === 0 ? text : '',
@@ -26,53 +31,51 @@ export function computeDiff(textA: string, textB: string): DiffChunk[] {
 }
 
 export function extractChangedSections(textA: string, textB: string): ChangedSection[] {
-  const diffs = computeDiff(textA, textB)
+  const diffs = computeDiff(textA || '', textB || '')
   const sections: ChangedSection[] = []
-  let currentBefore = ''
-  let currentAfter = ''
+  let beforeParts: string[] = []
+  let afterParts: string[] = []
+  let pendingContextParts: string[] = []
   let inChange = false
   let lineOffset = 0
   let changeStartLine = 0
 
+  const flush = () => {
+    const before = beforeParts.join('').trim()
+    const after = afterParts.join('').trim()
+    if (before || after) {
+      sections.push({ before, after, startLine: changeStartLine, endLine: lineOffset })
+    }
+    beforeParts = []
+    afterParts = []
+    inChange = false
+  }
+
   for (const chunk of diffs) {
-    // Every chunk carries `textBefore` for the "before" document (inserts
-    // carry an empty one). We advance the before-document line counter for
-    // all chunk types so reported line numbers stay accurate across edits.
     const beforeLines = chunk.textBefore.split('\n').length - 1
     if (chunk.type === 'equal') {
       if (inChange) {
-        if (currentBefore || currentAfter) {
-          sections.push({
-            before: currentBefore.trim(),
-            after: currentAfter.trim(),
-            startLine: changeStartLine,
-            endLine: lineOffset,
-          })
-        }
-        currentBefore = ''
-        currentAfter = ''
-        inChange = false
+        beforeParts.push(chunk.textBefore)
+        afterParts.push(chunk.textBefore)
+        if (GAP_RE.test(chunk.textBefore)) flush()
+      } else {
+        pendingContextParts.push(chunk.textBefore)
       }
       lineOffset += beforeLines
     } else {
       if (!inChange) {
         inChange = true
         changeStartLine = lineOffset
+        beforeParts = pendingContextParts.slice()
+        afterParts = pendingContextParts.slice()
+        pendingContextParts = []
       }
-      if (chunk.type === 'delete' || chunk.type === 'replace') currentBefore += chunk.textBefore
-      if (chunk.type === 'insert' || chunk.type === 'replace') currentAfter += chunk.textAfter
+      if (chunk.type === 'delete' || chunk.type === 'replace') beforeParts.push(chunk.textBefore)
+      if (chunk.type === 'insert' || chunk.type === 'replace') afterParts.push(chunk.textAfter)
       lineOffset += beforeLines
     }
   }
 
-  if (inChange && (currentBefore || currentAfter)) {
-    sections.push({
-      before: currentBefore.trim(),
-      after: currentAfter.trim(),
-      startLine: changeStartLine,
-      endLine: lineOffset,
-    })
-  }
-
+  flush()
   return sections
 }

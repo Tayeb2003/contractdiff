@@ -1,4 +1,9 @@
-const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || '/api';
+// Default to same-origin (empty) so the dev server's `/api` proxy works. In
+// production VITE_API_URL is set to the worker root URL. API_PREFIX below adds
+// the `/api` path segment; do NOT also put `/api` here or requests become
+// `/api/api/...`.
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || '';
+const API_PREFIX = '/api';
 
 function getToken(): string | null {
   return localStorage.getItem('token');
@@ -13,7 +18,8 @@ async function request(path: string, options: RequestInit = {}): Promise<any> {
   if (!(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const fullPath = path.startsWith('/') ? `${API_PREFIX}${path}` : `${API_PREFIX}/${path}`;
+  const res = await fetch(`${API_BASE}${fullPath}`, { ...options, headers });
   if (!res.ok) {
     let message = '';
     try {

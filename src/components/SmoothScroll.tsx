@@ -9,7 +9,8 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 2,
-      anchors: true,
+      // anchors: true breaks HashRouter navigation (#/route) - Lenis looks for DOM elements with those IDs
+      anchors: false,
     });
 
     let frame: number;
