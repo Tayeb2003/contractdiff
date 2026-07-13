@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import ScrollVideoHandler from '../components/ScrollVideoHandler';
+import ScrollFrameAnimation from '../components/ScrollFrameAnimation';
 import {
   ArrowRight,
   Check,
@@ -135,28 +135,12 @@ export default function HomePage({ proMode }: HomePageProps) {
       {/* ─────────────────────────── HERO (scroll-driven video) ─────────────────────────── */}
       <header className="relative w-full">
         {/* Scroll track — 600vh tall so full animation plays before content */}
-        <div id="hero-track" className="relative w-full" style={{ height: '600vh' }}>
-          {/* Pinned video layer */}
+        <div id="hero-track" className="relative w-full h-[400vh] lg:h-[600vh]">
+          {/* Pinned video layer — canvas-based frame animation */}
           <div className="sticky top-0 h-screen w-full overflow-hidden z-0">
-            <video
-              ref={(el) => {
-                if (el) {
-                  const video = el;
-                  video.muted = true;
-                  video.playsInline = true;
-                  video.preload = 'auto';
-                }
-              }}
-              id="hero-scroll-video"
-              src="/hero-scroll.mp4"
-              muted
-              playsInline
-              preload="auto"
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ opacity: 1, filter: 'brightness(1.45) contrast(1.1)' }}
-            />
+            <ScrollFrameAnimation />
             <div
-              className="absolute inset-0 pointer-events-none"
+              className="absolute inset-0 pointer-events-none z-[1]"
               style={{
                 background:
                   'linear-gradient(to bottom, rgba(9,22,20,0.7) 0%, rgba(9,22,20,0.3) 40%, rgba(9,22,20,0.55) 100%)',
@@ -166,13 +150,13 @@ export default function HomePage({ proMode }: HomePageProps) {
 
           {/* Pinned hero text — centered over the video, stays visible */}
           <div className="sticky top-0 h-screen w-full flex items-center justify-center z-10 pointer-events-none">
-            <div className="w-full max-w-[1280px] mx-auto px-5 md:px-16 flex flex-col items-center text-center pointer-events-auto"
-              style={{ paddingTop: '112px' }}
+            <div className="w-full max-w-[1280px] mx-auto px-4 md:px-16 flex flex-col items-center text-center pointer-events-auto"
+              style={{ paddingTop: '60px' }}
             >
               <h1
-                className="text-display-lg font-display-lg text-on-surface mb-6 leading-[1.02] tracking-[-0.02em] drop-shadow-2xl"
+                className="text-display-lg font-display-lg text-on-surface mb-4 md:mb-6 leading-[1.02] tracking-[-0.02em] drop-shadow-2xl"
                 style={{
-                  fontSize: 'clamp(48px, 8vw, 104px)',
+                  fontSize: 'clamp(32px, 10vw, 104px)',
                   lineHeight: 1.02,
                   transformStyle: 'preserve-3d',
                   textShadow: `
@@ -192,19 +176,19 @@ export default function HomePage({ proMode }: HomePageProps) {
                 transition={{ duration: 0.7, ease: 'easeOut' }}
               >
                 <p
-                  className="text-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-16 leading-relaxed"
-                  style={{ fontSize: 'clamp(18px, 1.6vw, 22px)' }}
+                  className="text-body-md md:text-body-lg text-on-surface-variant max-w-2xl mb-10 md:mb-16 leading-relaxed px-2"
+                  style={{ fontSize: 'clamp(14px, 3.5vw, 22px)' }}
                 >
                   World-class contract intelligence that reveals every change, every risk, and every shift
                   in negotiated power — in plain English. Built for non-lawyers, trusted by negotiators.
                 </p>
 
                 <div
-                  className="flex flex-col sm:flex-row gap-6 w-full justify-center"
+                  className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full justify-center px-4 sm:px-0"
                 >
                 <Link
                   to="/upload"
-                  className="inline-flex items-center justify-center font-label-caps text-label-caps bg-gold text-on-gold px-8 py-4 rounded uppercase tracking-widest hover:bg-gold-fixed transition-colors duration-300 shadow-[0_0_20px_rgba(227,195,129,0.4)]"
+                  className="inline-flex items-center justify-center font-label-caps text-label-caps bg-gold text-on-gold px-6 md:px-8 py-3 md:py-4 rounded uppercase tracking-widest hover:bg-gold-fixed transition-colors duration-300 shadow-[0_0_20px_rgba(227,195,129,0.4)] text-xs md:text-label-caps"
                 >
                   Request a Comparison
                 </Link>
@@ -213,7 +197,7 @@ export default function HomePage({ proMode }: HomePageProps) {
                     const el = document.getElementById('features');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="inline-flex items-center justify-center font-label-caps text-label-caps glass-panel text-on-surface border border-secondary/50 px-8 py-4 rounded uppercase tracking-widest hover:bg-secondary/10 transition-colors duration-300 cursor-pointer"
+                  className="inline-flex items-center justify-center font-label-caps text-label-caps glass-panel text-on-surface border border-secondary/50 px-6 md:px-8 py-3 md:py-4 rounded uppercase tracking-widest hover:bg-secondary/10 transition-colors duration-300 cursor-pointer text-xs md:text-label-caps"
                 >
                   Our Expertise
                 </button>
@@ -221,21 +205,19 @@ export default function HomePage({ proMode }: HomePageProps) {
             </motion.div>
           </div>
         </div>
-
-          <ScrollVideoHandler targetId="hero-scroll-video" containerId="hero-track" />
         </div>
 
         {/* Scroll indicator — left side */}
-        <div className="relative z-10 flex flex-col items-start -mt-20 pb-12 ml-8 md:ml-16 opacity-70 scroll-indicator">
-          <span className="font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase tracking-[0.2em]">
-            Scroll to Explore
+        <div className="relative z-10 flex flex-col items-start -mt-16 md:-mt-20 pb-8 md:pb-12 ml-4 md:ml-16 opacity-60 md:opacity-70 scroll-indicator">
+          <span className="font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase tracking-[0.2em] text-[10px] md:text-label-caps">
+            Scroll
           </span>
           <span className="material-symbols-outlined text-on-surface-variant">arrow_downward</span>
         </div>
       </header>
 
       {/* ─────────────────────── PROPOSITION / 4 PILLARS ─────────────────────── */}
-      <section className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-16 max-w-[1280px] mx-auto w-full">
+      <section className="relative z-10 py-12 md:py-32 lg:py-40 px-4 md:px-16 max-w-[1280px] mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -292,7 +274,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       </section>
 
       {/* ───────────────────────── STATS ───────────────────────── */}
-      <section className="relative z-10 py-24 px-6 md:px-16 max-w-[1280px] mx-auto w-full">
+      <section className="relative z-10 py-16 md:py-24 px-4 md:px-16 max-w-[1280px] mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -332,7 +314,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       {/* ───────────────────────── FEATURES ───────────────────────── */}
       <section
         id="features"
-        className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-16 max-w-[1280px] mx-auto w-full scroll-mt-40"
+        className="relative z-10 py-12 md:py-32 lg:py-40 px-4 md:px-16 max-w-[1280px] mx-auto w-full scroll-mt-40"
       >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -340,7 +322,7 @@ export default function HomePage({ proMode }: HomePageProps) {
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.5 }}
         >
-          <div className="text-center mb-20">
+          <div className="text-center mb-14 md:mb-20">
             <span className="font-label-caps text-label-caps text-gold/70 uppercase tracking-[0.3em] mb-6 block">
               Expertise
             </span>
@@ -354,7 +336,7 @@ export default function HomePage({ proMode }: HomePageProps) {
               Empowers you to negotiate with confidence by highlighting the differences that actually matter.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 lg:gap-16">
             {features.map((feature, idx) => (
               <motion.div
                 key={idx}
@@ -362,7 +344,7 @@ export default function HomePage({ proMode }: HomePageProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-100px' }}
                 transition={{ duration: 0.5, delay: idx * 0.08 }}
-                className="glass-panel p-7 rounded-lg hover:bg-secondary/10 transition-colors duration-300"
+                className="glass-panel p-5 md:p-7 rounded-lg hover:bg-secondary/10 transition-colors duration-300"
               >
                 <div className="mb-6 text-gold">{feature.icon}</div>
                 <h3
@@ -383,7 +365,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       {/* ───────────────────────── PRICING ───────────────────────── */}
       <section
         id="pricing"
-        className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-16 max-w-[1280px] mx-auto w-full scroll-mt-40"
+        className="relative z-10 py-12 md:py-32 lg:py-40 px-4 md:px-16 max-w-[1280px] mx-auto w-full scroll-mt-40"
       >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -391,7 +373,7 @@ export default function HomePage({ proMode }: HomePageProps) {
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.8 }}
         >
-          <div className="text-center mb-20">
+          <div className="text-center mb-14 md:mb-20">
             <span className="font-label-caps text-label-caps text-gold/70 uppercase tracking-[0.3em] mb-6 block">
               Pricing
             </span>
@@ -413,7 +395,7 @@ export default function HomePage({ proMode }: HomePageProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-100px' }}
                 transition={{ duration: 0.8 }}
-                className={`p-10 md:p-12 flex flex-col rounded-lg glass-panel md:w-1/2 ${
+                className={`p-6 md:p-12 flex flex-col rounded-lg glass-panel md:w-1/2 ${
                   plan.highlighted
                     ? 'border-gold/70 bg-gold/10'
                     : ''
@@ -475,7 +457,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       {/* ───────────────────────── DOCS/API ───────────────────────── */}
       <section
         id="docs"
-        className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-16 max-w-[1280px] mx-auto w-full scroll-mt-40"
+        className="relative z-10 py-12 md:py-32 lg:py-40 px-4 md:px-16 max-w-[1280px] mx-auto w-full scroll-mt-40"
       >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -577,7 +559,7 @@ export default function HomePage({ proMode }: HomePageProps) {
       {/* ───────────────────────── CONTACT ───────────────────────── */}
       <section
         id="contact"
-        className="relative z-10 py-20 md:py-32 lg:py-40 px-6 md:px-16 max-w-4xl mx-auto w-full scroll-mt-40"
+        className="relative z-10 py-12 md:py-32 lg:py-40 px-4 md:px-16 max-w-4xl mx-auto w-full scroll-mt-40"
       >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
