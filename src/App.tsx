@@ -1,20 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import SmoothScroll from './components/SmoothScroll';
 
-import HomePage from './pages/Home';
-import DocumentationPage from './pages/DocumentationPage';
-import UploadPage from './pages/Upload';
-import AnalysisPage from './pages/Analysis';
-import HistoryPage from './pages/History';
-import LoginPage from './pages/Login';
-import SignupPage from './pages/Signup';
-import SettingsPage from './pages/Settings';
-import ForgotPasswordPage from './pages/ForgotPassword';
-import ResetPasswordPage from './pages/ResetPassword';
-import TermsOfService from './pages/TermsOfService';
-import PrivacyPolicy from './pages/PrivacyPolicy';
+const HomePage = lazy(() => import('./pages/Home'));
+const DocumentationPage = lazy(() => import('./pages/DocumentationPage'));
+const UploadPage = lazy(() => import('./pages/Upload'));
+const AnalysisPage = lazy(() => import('./pages/Analysis'));
+const HistoryPage = lazy(() => import('./pages/History'));
+const LoginPage = lazy(() => import('./pages/Login'));
+const SignupPage = lazy(() => import('./pages/Signup'));
+const SettingsPage = lazy(() => import('./pages/Settings'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPassword'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPassword'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
 export default function App() {
   const [proMode, setProMode] = useState(
@@ -60,20 +60,22 @@ export default function App() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,transparent_0%,rgba(9,22,20,0.65)_85%)]" />
           </div>
           <Navbar proMode={proMode} onTogglePro={togglePro} />
-          <Routes>
-            <Route path="/" element={<HomePage proMode={proMode} />} />
-            {proMode && <Route path="/documentation" element={<DocumentationPage />} />}
-            <Route path="/upload" element={<UploadPage />} />
-            <Route path="/analysis/:id" element={<AnalysisPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-          </Routes>
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-on-surface-variant font-label-caps uppercase tracking-widest">Loading…</div></div>}>
+            <Routes>
+              <Route path="/" element={<HomePage proMode={proMode} />} />
+              {proMode && <Route path="/documentation" element={<DocumentationPage />} />}
+              <Route path="/upload" element={<UploadPage />} />
+              <Route path="/analysis/:id" element={<AnalysisPage />} />
+              <Route path="/history" element={<HistoryPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+            </Routes>
+          </Suspense>
         </div>
       </SmoothScroll>
     </HashRouter>

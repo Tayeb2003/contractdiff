@@ -11,6 +11,20 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-motion': ['motion'],
+            'vendor-lucide': ['lucide-react'],
+            'vendor-pdf': ['pdfjs-dist'],
+            'vendor-mammoth': ['mammoth'],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 600,
+    },
     server: {
       proxy: {
         '/api': { target: 'http://localhost:3001', changeOrigin: true },
