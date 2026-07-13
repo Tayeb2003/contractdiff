@@ -50,3 +50,26 @@ export function handleError(err: unknown): Response {
   console.error('Unhandled error:', msg)
   return json({ error: 'Internal server error' }, 500)
 }
+
+// --- Minimal in-memory fixed-window rate limiter (single isolate). ---
+// For multi-instance edge deployments, back this with a shared store (e.g.
+// Workers KV or Durable Objects) keyed by client IP.
+const rateBuckets = new Map<string, { count: number; resetAt: number }>()
+
+export function rateLimit(req: Request, windowMs: number, max: number): { limited: boolean; retryAfter: number } {
+  const url = new URL(req.url)
+  const clientIp =
+    req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for') || 'unknown'
+  const key = `${url.pathname}:${clientIp}`
+  const now = Date.now()
+  let b = rateBuckets.get(key)
+  if (!b || b.resetAt <= now) {
+    b = { count: 0, resetAt: now + windowMs }
+    rateBuckets.set(key, b)
+  }
+  b.count += 1
+  if (b.count > max) {
+    return { limited: true, retryAfter: Math.max(1, Math.ceil((b.resetAt - now) / 1000)) }
+  }
+  return { limited: false, retryAfter: 0 }
+}

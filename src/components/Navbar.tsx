@@ -121,13 +121,23 @@ export default function Navbar({ proMode, onTogglePro }: NavbarProps) {
             )}
           </div>
 
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-on-surface scale-95 active:scale-90 transition-transform cursor-pointer"
-            aria-label="Toggle menu"
-          >
-            <span className="material-symbols-outlined">{menuOpen ? 'close' : 'menu'}</span>
-          </button>
+          <div className="md:hidden flex items-center gap-3">
+            {!user && (
+              <Link
+                to="/login"
+                className="font-label-caps text-label-caps bg-gold text-on-gold px-4 py-2 rounded uppercase tracking-widest text-xs hover:bg-gold-fixed transition-colors duration-300"
+              >
+                Sign In
+              </Link>
+            )}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-on-surface scale-95 active:scale-90 transition-transform cursor-pointer"
+              aria-label="Toggle menu"
+            >
+              <span className="material-symbols-outlined">{menuOpen ? 'close' : 'menu'}</span>
+            </button>
+          </div>
         </div>
 
         <div className="absolute bottom-0 left-0 h-px bg-gold/20 w-full">

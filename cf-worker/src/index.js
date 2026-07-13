@@ -1,12 +1,18 @@
 import { handleRequest } from './router.js'
 import { setEnv, getEnv } from './env.js'
 import { initTurso, initDb } from './db.js'
+import { rateLimit } from './helpers.js'
+
+// Initialize the DB exactly once and await it before serving any request so a
+// cold start never races ahead of table creation (M3).
+let initPromise = null
 
 export default {
   async fetch(request, env, ctx) {
     setEnv(env)
     initTurso()
-    ctx.waitUntil(initDb())
+    if (!initPromise) initPromise = initDb()
+    await initPromise
 
     if (request.method === 'OPTIONS') {
       return handleCORS(request)
@@ -14,6 +20,20 @@ export default {
 
     const url = new URL(request.url)
     const origin = request.headers.get('origin')
+
+    // Brute-force / abuse protection on the auth surface (M6).
+    if (request.method === 'POST' && url.pathname.startsWith('/api/auth/')) {
+      const limiter =
+        url.pathname === '/api/auth/forgot-password'
+          ? rateLimit(request, 60 * 60 * 1000, 5)
+          : rateLimit(request, 15 * 60 * 1000, 20)
+      if (limiter.limited) {
+        return new Response(
+          JSON.stringify({ error: 'Too many attempts, please try again later.' }),
+          { status: 429, headers: { ...corsHeaders(origin), 'Retry-After': String(limiter.retryAfter) } }
+        )
+      }
+    }
 
     if (url.pathname === '/' || url.pathname === '') {
       return new Response(
@@ -47,7 +67,7 @@ export default {
     }
 
     try {
-      const response = await handleRequest(request)
+      const response = await handleRequest(request, ctx)
       const headers = corsHeaders(origin)
       response.headers.forEach((v, k) => headers.set(k, v))
       return new Response(response.body, { status: response.status, headers })
@@ -71,12 +91,23 @@ function corsHeaders(origin) {
   const allowedOrigins = (env.ALLOWED_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean)
   const defaultOrigin = env.APP_URL || 'http://localhost:3000'
   const headers = new Headers({ 'content-type': 'application/json' })
-  if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin) || origin === defaultOrigin) {
-    headers.set('access-control-allow-origin', origin || '*')
+  // Effective allowlist: fall back to the app origin when none is configured,
+  // mirroring the Express server. Credentials are only enabled for an
+  // EXPLICIT allowlist (no `*`), so we never reflect an arbitrary request
+  // origin together with `Access-Control-Allow-Credentials: true`.
+  const effective = allowedOrigins.length ? allowedOrigins : [defaultOrigin]
+  const allowCreds = !effective.includes('*')
+  const allowedOrigin = effective.includes('*') ? origin || '*' : effective[0]
+  if (allowCreds) {
+    if (effective.includes(origin || '') || origin === defaultOrigin || !origin) {
+      headers.set('access-control-allow-origin', origin || defaultOrigin)
+      headers.set('access-control-allow-credentials', 'true')
+    }
+  } else {
+    headers.set('access-control-allow-origin', allowedOrigin)
   }
   headers.set('access-control-allow-methods', 'GET, POST, PUT, DELETE, OPTIONS')
   headers.set('access-control-allow-headers', 'Content-Type, Authorization')
-  headers.set('access-control-allow-credentials', 'true')
   return headers
 }
 

@@ -48,13 +48,13 @@ function matchRoute(method, path) {
   return { handler: undefined, params: {} }
 }
 
-export async function handleRequest(request) {
+export async function handleRequest(request, ctx) {
   const url = new URL(request.url)
   const { handler, params } = matchRoute(request.method, url.pathname)
 
   if (handler) {
     try {
-      const response = await handler(request, params.id)
+      const response = await handler(request, params.id, ctx)
       return response instanceof Response ? response : json(response)
     } catch (err) {
       return handleError(err)

@@ -3,6 +3,13 @@ import { parseDocument } from '../services/parser.js'
 import { validate, ValidationError } from '../services/validation.js'
 import { json, parseBody, requireAuth, handleError } from '../helpers.js'
 
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+
+function sanitizeName(value) {
+  if (typeof value !== 'string') return ''
+  return value.replace(/[\0/\\]/g, '').trim().slice(0, 500)
+}
+
 export async function handleUpload(req) {
   try {
     const { userId } = await requireAuth(req)
@@ -18,17 +25,23 @@ export async function handleUpload(req) {
     if (!allowed.includes(file.type)) {
       return json({ error: 'Only PDF, DOCX, and TXT files are allowed' }, 400)
     }
+    // Bounded upload size — without this a worker can be exhausted by a huge
+    // multipart body (M4).
+    if (typeof file.size === 'number' && file.size > MAX_UPLOAD_BYTES) {
+      return json({ error: 'File too large (maximum 20MB)' }, 413)
+    }
 
     const buffer = await file.arrayBuffer()
     const content = await parseDocument(buffer, file.type)
     const id = crypto.randomUUID()
-    const ext = file.name.split('.').pop() || 'bin'
+    const ext = sanitizeName(file.name).split('.').pop() || 'bin'
+    const originalName = sanitizeName(file.name) || 'uploaded-file'
 
     await db.execute({
       sql: 'INSERT INTO documents (id, user_id, filename, original_name, content, doc_type) VALUES (?, ?, ?, ?, ?, ?)',
-      args: [id, userId, `${id}.${ext}`, file.name, content, file.type],
+      args: [id, userId, `${id}.${ext}`, originalName, content, file.type],
     })
-    return json({ id, originalName: file.name, docType: file.type, contentLength: content.length }, 201)
+    return json({ id, originalName, docType: file.type, contentLength: content.length }, 201)
   } catch (err) {
     return handleError(err)
   }
@@ -43,12 +56,13 @@ export async function handlePaste(req) {
       title: { max: 500 },
     })
     const id = crypto.randomUUID()
+    const safeTitle = sanitizeName(body.title) || 'pasted-text'
     await db.execute({
       sql: 'INSERT INTO documents (id, user_id, filename, original_name, content, doc_type) VALUES (?, ?, ?, ?, ?, ?)',
-      args: [id, userId, `${id}.txt`, body.title || 'pasted-text', body.content, 'text/plain'],
+      args: [id, userId, `${id}.txt`, safeTitle, body.content, 'text/plain'],
     })
     return json(
-      { id, originalName: body.title || 'pasted-text', docType: 'text/plain', contentLength: body.content.length },
+      { id, originalName: safeTitle, docType: 'text/plain', contentLength: body.content.length },
       201
     )
   } catch (err) {

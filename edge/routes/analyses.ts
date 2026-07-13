@@ -2,6 +2,7 @@ import { db } from '../db.js'
 import { extractChangedSections } from '../services/differ.js'
 import { analyzeClause, generateSummary, type AIConfig, type Provider } from '../services/ai.js'
 import { validateDocIds, ValidationError } from '../services/validation.js'
+import { decryptApiKey } from '../services/crypto.js'
 import { logger } from '../services/logger.js'
 import { json, parseBody, requireAuth, handleError } from '../helpers.js'
 
@@ -25,12 +26,21 @@ export async function handleCreateAnalysis(req: Request): Promise<Response> {
 
     const userResult = await db.execute({ sql: 'SELECT ai_api_key, ai_provider FROM users WHERE id = ?', args: [userId] })
     const userRow = userResult.rows[0] as any
-    const userKey = userRow?.ai_api_key as string | undefined
+    const rawUserKey = (userRow?.ai_api_key as string | undefined) ? await decryptApiKey(userRow.ai_api_key) : undefined
     const userProvider: Provider = (userRow?.ai_provider as Provider) || 'gemini'
-    if (!userKey) {
-      return json({ error: 'You must set your own API key (and choose a provider) in Settings before running an analysis.' }, 400)
+
+    // Prefer the user's own key; otherwise fall back to a server-provided
+    // default key (if configured) so the app can work out of the box. If no
+    // key is available at all, run a local (AI-free) analysis instead of
+    // blocking the request. This matches the Express/cf-worker behaviour.
+    const defaultKey = process.env.DEFAULT_AI_KEY as string | undefined
+    const defaultProvider: Provider = (process.env.DEFAULT_AI_PROVIDER as Provider) || 'gemini'
+    const key = rawUserKey || defaultKey
+    const provider = rawUserKey ? userProvider : defaultProvider
+    const config: AIConfig | null = key ? { provider, key } : null
+    if (!config) {
+      logger.warn('No API key available for analysis; will use local fallback.', { userId })
     }
-    const config: AIConfig = { provider: userProvider, key: userKey }
 
     const analysisId = crypto.randomUUID()
     await db.execute({
@@ -49,7 +59,7 @@ export async function handleCreateAnalysis(req: Request): Promise<Response> {
   }
 }
 
-async function processAnalysis(analysisId: string, contentA: string, contentB: string, config: AIConfig) {
+async function processAnalysis(analysisId: string, contentA: string, contentB: string, config: AIConfig | null) {
   try {
     const changedSections = extractChangedSections(contentA, contentB)
     if (changedSections.length === 0) {

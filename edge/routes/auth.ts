@@ -3,6 +3,7 @@ import { generateToken } from '../jwt.js'
 import { hashPassword, comparePassword } from '../password.js'
 import { json, parseBody, requireAuth, handleError, AppError, AuthError } from '../helpers.js'
 import { ValidationError, validate } from '../services/validation.js'
+import { encryptApiKey } from '../services/crypto.js'
 
 const FRONTEND_URL = process.env.FRONTEND_URL || process.env.APP_URL || 'http://localhost:3000'
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000
@@ -94,7 +95,8 @@ export async function handlePutKey(req: Request): Promise<Response> {
       return json({ success: true, cleared: true })
     }
     const safeProvider = ALLOWED_PROVIDERS.includes(body.provider) ? body.provider : 'gemini'
-    await db.execute({ sql: 'UPDATE users SET ai_api_key = ?, ai_provider = ? WHERE id = ?', args: [body.apiKey.trim(), safeProvider, userId] })
+    const encrypted = await encryptApiKey(body.apiKey.trim())
+    await db.execute({ sql: 'UPDATE users SET ai_api_key = ?, ai_provider = ? WHERE id = ?', args: [encrypted, safeProvider, userId] })
     return json({ success: true, provider: safeProvider })
   } catch (err) { return handleError(err) }
 }
@@ -112,8 +114,15 @@ export async function handleForgotPassword(req: Request): Promise<Response> {
       await db.execute({ sql: 'INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES (?, ?, ?)', args: [token, user.id, expiresAt] })
       const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`
       const sent = await sendResetEmail(body.email, resetUrl)
-      if (sent) return json({ message: 'If an account exists for that email, a reset link has been sent.' })
-      return json({ message: 'If an account exists for that email, a reset link has been generated.', devLink: resetUrl })
+      if (!sent) {
+        // Never return the reset token/link to the client by default — log it
+        // server-side. Only echo it back when RESET_DEV_LINK=true (local dev).
+        console.warn(`[security] Password reset email not delivered (no RESEND_API_KEY configured). Reset link for user ${user.id}: ${resetUrl}`)
+        if (process.env.RESET_DEV_LINK === 'true') {
+          return json({ message: 'If an account exists for that email, a reset link has been generated.', devLink: resetUrl })
+        }
+      }
+      return json({ message: 'If an account exists for that email, a reset link has been sent.' })
     }
     return json({ message: 'If an account exists for that email, a reset link has been sent.' })
   } catch (err) {

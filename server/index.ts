@@ -10,28 +10,43 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dotenv = await import('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '..', '.env.local') });
 
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is required. Generate one with `openssl rand -hex 32` and add it to your environment.');
+  process.exit(1);
+}
+
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
-// CORS — allow the app origin plus any comma-separated ALLOWED_ORIGINS for third-party developers.
-// Set ALLOWED_ORIGINS=* to permit any origin (not recommended for production with credentials).
+// Trust the configured number of reverse-proxy hops so req.ip reflects the real
+// client address. Required for accurate per-IP rate limiting behind
+// Render/Cloudflare/nginx; without it all clients collapse to the proxy IP.
+// Set TRUST_PROXY to the number of trusted hops in front of the app (default 1).
+if (process.env.TRUST_PROXY) {
+  app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
+}
+
+// CORS — allow the app origin plus any comma-separated ALLOWED_ORIGINS for
+// third-party developers. Credentials are only enabled when an EXPLICIT
+// allowlist is configured (no `*`), so we never reflect an arbitrary
+// request origin together with `Access-Control-Allow-Credentials: true`.
 const defaultOrigin = process.env.APP_URL || 'http://localhost:3000';
 const allowed = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
 const allowedOrigins = allowed.length ? allowed : [defaultOrigin];
+const credentialsEnabled = allowedOrigins.length > 0 && !allowedOrigins.includes('*');
 
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-        cb(null, true);
-      } else {
-        cb(null, false);
-      }
+      if (!origin) return cb(null, true); // same-origin / non-browser clients
+      if (allowedOrigins.includes('*')) return cb(null, true); // public API, no creds
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(null, false);
     },
-    credentials: true,
+    credentials: credentialsEnabled,
   })
 );
 app.use(express.json({ limit: '50mb' }));
@@ -42,6 +57,7 @@ const { default: documentRoutes } = await import('./routes/documents.js');
 const { default: analysisRoutes } = await import('./routes/analyses.js');
 const { errorHandler } = await import('./middleware/error.js');
 const { logger } = await import('./services/logger.js');
+const { recoverAnalyses } = await import('./routes/analyses.js');
 const openApiSpec = (await import('./openapi.js')).default;
 
 app.use('/api/auth', authRoutes);
@@ -81,4 +97,7 @@ app.use(errorHandler);
 
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`Server running on http://0.0.0.0:${PORT}`);
+  // Requeue any analyses left in `processing` by a previous run so they don't
+  // stay stuck forever (M2).
+  recoverAnalyses();
 });

@@ -5,6 +5,7 @@ import { authMiddleware, AuthenticatedRequest } from '../middleware/auth.js';
 import { extractChangedSections } from '../services/differ.js';
 import { analyzeClause, generateSummary, type AIConfig, type Provider } from '../services/ai.js';
 import { validateDocIds } from '../services/validation.js';
+import { decryptApiKey } from '../services/crypto.js';
 import { logger } from '../services/logger.js';
 
 const router = Router();
@@ -23,13 +24,24 @@ router.post('/create', authMiddleware, async (req: Request, res: Response) => {
     }
 
     const userRow = db.prepare('SELECT ai_api_key, ai_provider FROM users WHERE id = ?').get(userId) as any;
-    const userKey = userRow?.ai_api_key;
+    const rawUserKey = decryptApiKey(userRow?.ai_api_key);
     const userProvider: Provider = userRow?.ai_provider || 'gemini';
-    if (!userKey) {
-      res.status(400).json({ error: 'You must set your own API key (and choose a provider) in Settings before running an analysis.' });
-      return;
+
+    // Prefer the user's own key; otherwise fall back to a server-provided
+    // default key (if configured) so the app can work out of the box. If no
+    // key is available at all, run a local (AI-free) analysis instead of
+    // blocking the request. This matches the edge/cf-worker behaviour.
+    // SECURITY: only set DEFAULT_AI_KEY when you accept that all users' analyses
+    // will bill against your provider quota with no per-user isolation — leave
+    // it unset to require each user's own key.
+    const defaultKey = process.env.DEFAULT_AI_KEY;
+    const defaultProvider: Provider = (process.env.DEFAULT_AI_PROVIDER as Provider) || 'gemini';
+    const key = rawUserKey || defaultKey;
+    const provider = rawUserKey ? userProvider : defaultProvider;
+    const config: AIConfig | null = key ? { provider, key } : null;
+    if (!config) {
+      logger.warn('No API key available for analysis; will use local fallback.', { userId });
     }
-    const config: AIConfig = { provider: userProvider, key: userKey };
 
     const analysisId = uuidv4();
     db.prepare(
@@ -55,7 +67,7 @@ router.post('/create', authMiddleware, async (req: Request, res: Response) => {
   }
 });
 
-async function processAnalysis(analysisId: string, contentA: string, contentB: string, config: AIConfig) {
+async function processAnalysis(analysisId: string, contentA: string, contentB: string, config: AIConfig | null) {
   try {
     const changedSections = extractChangedSections(contentA, contentB);
 
@@ -163,5 +175,44 @@ router.delete('/:id', authMiddleware, (req: Request, res: Response) => {
     res.status(500).json({ error: err.message || 'Delete failed' });
   }
 });
+
+/**
+ * Re-run any analyses left in `processing` (e.g. the server was restarted
+ * while a background analysis was in flight). Existing partial clause diffs
+ * are cleared first so re-processing is idempotent.
+ */
+export function recoverAnalyses(): void {
+  try {
+    const stuck = db
+      .prepare("SELECT id, doc_a_id, doc_b_id, user_id FROM analyses WHERE status = 'processing'")
+      .all() as any[];
+    if (stuck.length === 0) return;
+    logger.info('Recovering in-flight analyses', { count: stuck.length });
+    for (const a of stuck) {
+      const docA = db.prepare('SELECT content FROM documents WHERE id = ? AND user_id = ?').get(a.doc_a_id, a.user_id) as any;
+      const docB = db.prepare('SELECT content FROM documents WHERE id = ? AND user_id = ?').get(a.doc_b_id, a.user_id) as any;
+      if (!docA || !docB) {
+        db.prepare("UPDATE analyses SET status = 'failed' WHERE id = ?").run(a.id);
+        continue;
+      }
+      db.prepare('DELETE FROM clause_diffs WHERE analysis_id = ?').run(a.id);
+      db.prepare("UPDATE analyses SET status = 'processing', summary = NULL WHERE id = ?").run(a.id);
+
+      const userRow = db.prepare('SELECT ai_api_key, ai_provider FROM users WHERE id = ?').get(a.user_id) as any;
+      const rawUserKey = decryptApiKey(userRow?.ai_api_key);
+      const userProvider: Provider = userRow?.ai_provider || 'gemini';
+      const defaultKey = process.env.DEFAULT_AI_KEY;
+      const defaultProvider: Provider = (process.env.DEFAULT_AI_PROVIDER as Provider) || 'gemini';
+      const key = rawUserKey || defaultKey;
+      const provider = rawUserKey ? userProvider : defaultProvider;
+      const config: AIConfig | null = key ? { provider, key } : null;
+      processAnalysis(a.id, docA.content, docB.content, config).catch((err) =>
+        logger.error('Recovery analysis failed', { analysisId: a.id, error: err.message })
+      );
+    }
+  } catch (err: any) {
+    logger.error('Analysis recovery scan failed', { error: err.message });
+  }
+}
 
 export default router;

@@ -183,7 +183,7 @@ const spec = {
         summary: 'Request a password reset link',
         security: [],
         description:
-          'Generates a single-use reset token (1-hour expiry). If SMTP is configured on the server, an email with the reset link is sent. Otherwise the reset link is returned in the `devLink` field for local development.',
+          'Generates a single-use reset token (1-hour expiry). If SMTP is configured on the server, an email with the reset link is sent. The reset link is otherwise only logged server-side; it is returned in the `devLink` field ONLY when RESET_DEV_LINK=true is set (local development).',
         requestBody: {
           required: true,
           content: {
@@ -205,7 +205,7 @@ const spec = {
                   type: 'object',
                   properties: {
                     message: { type: 'string' },
-                    devLink: { type: 'string', description: 'Present only when email is not configured', nullable: true },
+                    devLink: { type: 'string', description: 'Present only when RESET_DEV_LINK=true is set; never in normal operation', nullable: true },
                   },
                 },
               },

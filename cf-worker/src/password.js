@@ -1,4 +1,4 @@
-const ITERATIONS = 1_000
+const ITERATIONS = 100_000
 
 export async function hashPassword(password) {
   const salt = crypto.getRandomValues(new Uint8Array(16))
@@ -36,5 +36,9 @@ export async function comparePassword(password, stored) {
     key,
     256
   )
-  return btoa(String.fromCharCode(...new Uint8Array(hash))) === parts[3]
+  const provided = new Uint8Array(hash)
+  const expected = Uint8Array.from(atob(parts[3]), (c) => c.charCodeAt(0))
+  if (provided.length !== expected.length) return false
+  // Constant-time comparison to avoid timing side-channels on the hash.
+  return crypto.subtle.timingSafeEqual(provided, expected)
 }

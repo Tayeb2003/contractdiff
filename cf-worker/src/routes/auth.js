@@ -4,6 +4,7 @@ import { hashPassword, comparePassword } from '../password.js'
 import { json, parseBody, requireAuth, handleError, AppError } from '../helpers.js'
 import { getEnv } from '../env.js'
 import { ValidationError, validate } from '../services/validation.js'
+import { encryptApiKey } from '../services/crypto.js'
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000
 const ALLOWED_PROVIDERS = ['gemini', 'openai', 'anthropic', 'nvidia']
@@ -121,9 +122,10 @@ export async function handlePutKey(req) {
       return json({ success: true, cleared: true })
     }
     const safeProvider = ALLOWED_PROVIDERS.includes(body.provider) ? body.provider : 'gemini'
+    const encrypted = await encryptApiKey(body.apiKey.trim())
     await db.execute({
       sql: 'UPDATE users SET ai_api_key = ?, ai_provider = ? WHERE id = ?',
-      args: [body.apiKey.trim(), safeProvider, userId],
+      args: [encrypted, safeProvider, userId],
     })
     return json({ success: true, provider: safeProvider })
   } catch (err) {
@@ -156,13 +158,15 @@ export async function handleForgotPassword(req) {
       })
       const resetUrl = `${frontendUrl}/reset-password?token=${token}`
       const sent = await sendResetEmail(body.email, resetUrl)
-      if (sent) {
-        return json({ message: 'If an account exists for that email, a reset link has been sent.' })
+      if (!sent) {
+        // Never return the reset token/link to the client by default — log it
+        // server-side. Only echo it back when RESET_DEV_LINK=true (local dev).
+        console.warn(`[security] Password reset email not delivered (no RESEND_API_KEY configured). Reset link for user ${user.id}: ${resetUrl}`)
+        if (getEnv().RESET_DEV_LINK === 'true') {
+          return json({ message: 'If an account exists for that email, a reset link has been generated.', devLink: resetUrl })
+        }
       }
-      return json({
-        message: 'If an account exists for that email, a reset link has been generated.',
-        devLink: resetUrl,
-      })
+      return json({ message: 'If an account exists for that email, a reset link has been sent.' })
     }
     return json({ message: 'If an account exists for that email, a reset link has been sent.' })
   } catch (err) {

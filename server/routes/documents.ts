@@ -42,6 +42,15 @@ const upload = multer({
 
 const router = Router();
 
+// Strip path separators and control chars from user-supplied names before
+// storing/reflecting them. The upload filename on disk is always a UUID, but
+// `original_name`/`title` are echoed back to clients and must not carry
+// path-traversal or injection payloads.
+function sanitizeName(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value.replace(/[\0/\\]/g, '').trim().slice(0, 500);
+}
+
 router.post('/upload', authMiddleware, async (req: Request, res: Response) => {
   try {
     upload.single('file')(req, res, async (uploadErr) => {
@@ -56,14 +65,23 @@ router.post('/upload', authMiddleware, async (req: Request, res: Response) => {
           return;
         }
         const userId = (req as AuthenticatedRequest).userId!;
-        const content = await parseDocument(file.path, file.mimetype);
+        let content: string;
+        try {
+          content = await parseDocument(file.path, file.mimetype);
+        } catch (parseErr: any) {
+          // Clean up the already-written upload so failed parses don't leak files.
+          await fsp.unlink(file.path).catch(() => {});
+          logger.error('Document upload/parse failed', { error: parseErr.message });
+          res.status(500).json({ error: parseErr.message || 'Upload failed' });
+          return;
+        }
         const id = uuidv4();
         db.prepare(
           'INSERT INTO documents (id, user_id, filename, original_name, content, doc_type) VALUES (?, ?, ?, ?, ?, ?)'
-        ).run(id, userId, file.filename, file.originalname, content, file.mimetype);
+        ).run(id, userId, file.filename, sanitizeName(file.originalname), content, file.mimetype);
         res.status(201).json({
           id,
-          originalName: file.originalname,
+          originalName: sanitizeName(file.originalname),
           docType: file.mimetype,
           contentLength: content.length,
         });
@@ -87,12 +105,13 @@ router.post('/paste', authMiddleware, (req: Request, res: Response) => {
 
     const userId = (req as AuthenticatedRequest).userId!;
     const id = uuidv4();
+    const safeTitle = sanitizeName(title) || 'pasted-text';
     db.prepare(
       'INSERT INTO documents (id, user_id, filename, original_name, content, doc_type) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(id, userId, `${id}.txt`, title || 'pasted-text', content, 'text/plain');
+    ).run(id, userId, `${id}.txt`, safeTitle, content, 'text/plain');
     res.status(201).json({
       id,
-      originalName: title || 'pasted-text',
+      originalName: safeTitle,
       docType: 'text/plain',
       contentLength: content.length,
     });
@@ -127,6 +146,8 @@ router.delete('/:id', authMiddleware, (req: Request, res: Response) => {
       .all(userId, req.params.id, req.params.id) as any[];
     const delClauses = db.prepare('DELETE FROM clause_diffs WHERE analysis_id = ?');
     const delAnalysis = db.prepare('DELETE FROM analyses WHERE id = ?');
+    // Fetch the stored filename BEFORE deleting the row so we can remove the
+    // on-disk upload (otherwise the file is orphaned forever).
     const docFile = db.prepare('SELECT filename FROM documents WHERE id = ?').get(req.params.id) as any;
     const delDoc = db.prepare('DELETE FROM documents WHERE id = ?');
     const tx = db.transaction(() => {

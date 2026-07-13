@@ -15,8 +15,14 @@ async function request(path: string, options: RequestInit = {}): Promise<any> {
   }
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || 'Request failed');
+    let message = '';
+    try {
+      const data = await res.json();
+      message = data?.error || data?.message || '';
+    } catch {
+      message = res.statusText || '';
+    }
+    throw new Error(message || `Request failed (HTTP ${res.status})`);
   }
   return res.json();
 }

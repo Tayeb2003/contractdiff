@@ -20,13 +20,29 @@ export function validate(body: Record<string, unknown>, rules: Record<string, Ru
       throw new ValidationError(rule.message || `${field} is required`);
     }
     if (isPresent(value)) {
+      // min/max apply to string/array length or numeric value.
+      const numeric = typeof value === 'number' ? value : null;
+      const measurable =
+        typeof value === 'string' || Array.isArray(value)
+          ? (value as string | unknown[]).length
+          : numeric;
+      if (rule.min !== undefined) {
+        if (measurable === null) {
+          throw new ValidationError(rule.message || `${field} must be at least ${rule.min}`);
+        }
+        if (measurable < rule.min) {
+          throw new ValidationError(rule.message || `${field} must be at least ${rule.min}`);
+        }
+      }
+      if (rule.max !== undefined) {
+        if (measurable === null) {
+          throw new ValidationError(rule.message || `${field} must be at most ${rule.max}`);
+        }
+        if (measurable > rule.max) {
+          throw new ValidationError(rule.message || `${field} must be at most ${rule.max}`);
+        }
+      }
       if (typeof value === 'string') {
-        if (rule.min !== undefined && value.length < rule.min) {
-          throw new ValidationError(rule.message || `${field} must be at least ${rule.min} characters`);
-        }
-        if (rule.max !== undefined && value.length > rule.max) {
-          throw new ValidationError(rule.message || `${field} must be at most ${rule.max} characters`);
-        }
         if (rule.pattern && !rule.pattern.test(value)) {
           throw new ValidationError(rule.message || `${field} format is invalid`);
         }

@@ -5,7 +5,13 @@ export interface AuthenticatedRequest extends Request {
   userId?: string;
 }
 
-const SECRET = () => process.env.JWT_SECRET || 'contractdiff-dev-secret-change-in-production';
+const SECRET = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not set. Refusing to generate/verify tokens. Generate a strong random secret and set it in the environment.');
+  }
+  return secret;
+};
 
 interface TokenPayload {
   userId: string;
@@ -28,11 +34,16 @@ export function verifyToken(token: string): TokenPayload | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    const signature = crypto
+    const expected = crypto
       .createHmac('sha256', SECRET())
       .update(`${parts[0]}.${parts[1]}`)
-      .digest('base64url');
-    if (signature !== parts[2]) return null;
+      .digest();
+    // Constant-time comparison to avoid HMAC timing side-channels (CVE-class
+    // signature-forgery risk if a plain `===` were used).
+    const provided = Buffer.from(parts[2] || '', 'base64url');
+    if (expected.length !== provided.length || !crypto.timingSafeEqual(expected, provided)) {
+      return null;
+    }
     const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString()) as TokenPayload;
     if (payload.exp < Date.now() / 1000) return null;
     return payload;

@@ -32,27 +32,36 @@ export function extractChangedSections(textA: string, textB: string): ChangedSec
   let currentAfter = ''
   let inChange = false
   let lineOffset = 0
+  let changeStartLine = 0
 
   for (const chunk of diffs) {
+    // Every chunk carries `textBefore` for the "before" document (inserts
+    // carry an empty one). We advance the before-document line counter for
+    // all chunk types so reported line numbers stay accurate across edits.
+    const beforeLines = chunk.textBefore.split('\n').length - 1
     if (chunk.type === 'equal') {
       if (inChange) {
         if (currentBefore || currentAfter) {
           sections.push({
             before: currentBefore.trim(),
             after: currentAfter.trim(),
-            startLine: Math.max(0, lineOffset - 1),
-            endLine: lineOffset + 1,
+            startLine: changeStartLine,
+            endLine: lineOffset,
           })
         }
         currentBefore = ''
         currentAfter = ''
         inChange = false
       }
-      lineOffset += chunk.textBefore.split('\n').length - 1
+      lineOffset += beforeLines
     } else {
-      inChange = true
+      if (!inChange) {
+        inChange = true
+        changeStartLine = lineOffset
+      }
       if (chunk.type === 'delete' || chunk.type === 'replace') currentBefore += chunk.textBefore
       if (chunk.type === 'insert' || chunk.type === 'replace') currentAfter += chunk.textAfter
+      lineOffset += beforeLines
     }
   }
 
@@ -60,8 +69,8 @@ export function extractChangedSections(textA: string, textB: string): ChangedSec
     sections.push({
       before: currentBefore.trim(),
       after: currentAfter.trim(),
-      startLine: Math.max(0, lineOffset - 1),
-      endLine: lineOffset + 1,
+      startLine: changeStartLine,
+      endLine: lineOffset,
     })
   }
 

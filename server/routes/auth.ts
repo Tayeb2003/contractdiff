@@ -5,6 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 import db from '../db.js';
 import { generateToken, verifyToken, authMiddleware, AuthenticatedRequest } from '../middleware/auth.js';
 import { validate } from '../services/validation.js';
+import { encryptApiKey } from '../services/crypto.js';
+import { rateLimit } from '../middleware/ratelimit.js';
+
+// Brute-force / abuse protection on the auth surface.
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: 'Too many attempts, please try again later.' });
+const passwordResetLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, message: 'Too many password-reset requests, please try again later.' });
 
 const router = Router();
 
@@ -37,7 +43,7 @@ async function sendResetEmail(email: string, resetUrl: string): Promise<boolean>
   }
 }
 
-router.post('/forgot-password', async (req: Request, res: Response) => {
+router.post('/forgot-password', passwordResetLimiter, async (req: Request, res: Response) => {
   try {
     validate(req.body, { email: { required: true, email: true } });
     const { email } = req.body;
@@ -53,14 +59,22 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
 
       const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
       const sent = await sendResetEmail(email, resetUrl);
-      if (sent) {
-        res.json({ message: 'If an account exists for that email, a reset link has been sent.' });
-        return;
+      if (!sent) {
+        // Never return the reset token/link to the client by default — log it
+        // server-side so an operator can deliver it out-of-band. It is only
+        // echoed back when RESET_DEV_LINK=true is explicitly set (local dev).
+        console.warn(
+          `[security] Password reset email not delivered (no SMTP configured). Reset link for user ${user.id}: ${resetUrl}`
+        );
+        if (process.env.RESET_DEV_LINK === 'true') {
+          res.json({
+            message: 'If an account exists for that email, a reset link has been generated.',
+            devLink: resetUrl,
+          });
+          return;
+        }
       }
-      res.json({
-        message: 'If an account exists for that email, a reset link has been generated.',
-        devLink: resetUrl,
-      });
+      res.json({ message: 'If an account exists for that email, a reset link has been sent.' });
       return;
     }
 
@@ -106,7 +120,7 @@ router.post('/reset-password', (req: Request, res: Response) => {
   }
 });
 
-router.post('/signup', (req: Request, res: Response) => {
+router.post('/signup', authLimiter, (req: Request, res: Response) => {
   try {
     const { email, password, name } = req.body;
     validate(req.body, {
@@ -133,7 +147,7 @@ router.post('/signup', (req: Request, res: Response) => {
   }
 });
 
-router.post('/login', (req: Request, res: Response) => {
+router.post('/login', authLimiter, (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     validate(req.body, {
@@ -190,7 +204,11 @@ router.put('/key', authMiddleware, (req: Request, res: Response) => {
     return;
   }
   const safeProvider = ALLOWED_PROVIDERS.includes(provider) ? provider : 'gemini';
-  db.prepare('UPDATE users SET ai_api_key = ?, ai_provider = ? WHERE id = ?').run(apiKey.trim(), safeProvider, userId);
+  db.prepare('UPDATE users SET ai_api_key = ?, ai_provider = ? WHERE id = ?').run(
+    encryptApiKey(apiKey.trim()),
+    safeProvider,
+    userId
+  );
   res.json({ success: true, provider: safeProvider });
 });
 

@@ -4,8 +4,10 @@ import { analyzeClause, generateSummary } from '../services/ai.js'
 import { validateDocIds, ValidationError } from '../services/validation.js'
 import { logger } from '../services/logger.js'
 import { json, parseBody, requireAuth, handleError } from '../helpers.js'
+import { getEnv } from '../env.js'
+import { decryptApiKey } from '../services/crypto.js'
 
-export async function handleCreateAnalysis(req) {
+export async function handleCreateAnalysis(req, _id, ctx) {
   try {
     const { userId } = await requireAuth(req)
     const body = await parseBody(req)
@@ -26,15 +28,18 @@ export async function handleCreateAnalysis(req) {
       args: [userId],
     })
     const userRow = userResult.rows[0]
-    const userKey = userRow?.ai_api_key
+    const userKey = userRow?.ai_api_key ? await decryptApiKey(userRow.ai_api_key) : undefined
     const userProvider = userRow?.ai_provider || 'gemini'
-    if (!userKey) {
-      return json(
-        { error: 'You must set your own API key (and choose a provider) in Settings before running an analysis.' },
-        400
-      )
-    }
-    const config = { provider: userProvider, key: userKey }
+
+    // Prefer the user's own key; otherwise fall back to a server-provided
+    // default key so the app works out of the box. If no key is available at
+    // all, run a local (AI-free) analysis instead of blocking the request.
+    const env = getEnv()
+    const defaultKey = env.DEFAULT_AI_KEY
+    const defaultProvider = env.DEFAULT_AI_PROVIDER || 'gemini'
+    const key = userKey || defaultKey
+    const provider = userKey ? userProvider : defaultProvider
+    const config = key ? { provider, key } : null
 
     const analysisId = crypto.randomUUID()
     await db.execute({
@@ -42,9 +47,17 @@ export async function handleCreateAnalysis(req) {
       args: [analysisId, userId, docAId, docBId, 'processing'],
     })
 
-    processAnalysis(analysisId, docA.content, docB.content, config).catch((err) => {
-      logger.error('Background analysis failed', { analysisId, error: err.message })
-    })
+    if (ctx?.waitUntil) {
+      ctx.waitUntil(
+        processAnalysis(analysisId, docA.content, docB.content, config).catch((err) => {
+          logger.error('Background analysis failed', { analysisId, error: err.message })
+        })
+      )
+    } else {
+      processAnalysis(analysisId, docA.content, docB.content, config).catch((err) => {
+        logger.error('Background analysis failed', { analysisId, error: err.message })
+      })
+    }
 
     return json({ analysisId, status: 'processing' }, 202)
   } catch (err) {

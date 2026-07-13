@@ -1,4 +1,10 @@
-const SECRET = () => process.env.JWT_SECRET || 'contractdiff-dev-secret'
+const SECRET = (): string => {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('JWT_SECRET is not set. Refusing to generate/verify tokens. Generate a strong random secret and set it in the environment.')
+  }
+  return secret
+}
 
 function b64url(data: string): string {
   return btoa(data).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')

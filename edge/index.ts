@@ -1,5 +1,5 @@
 import { initDb } from './db.js'
-import { json, handleError } from './helpers.js'
+import { json, handleError, rateLimit } from './helpers.js'
 import {
   handleSignup, handleLogin, handleMe,
   handleGetKey, handlePutKey,
@@ -13,12 +13,25 @@ const DEFAULT_ORIGIN = process.env.APP_URL || 'http://localhost:3000'
 
 function corsHeaders(origin: string | null): Headers {
   const headers = new Headers({ 'content-type': 'application/json' })
-  if (!origin || ALLOWED_ORIGINS.includes('*') || ALLOWED_ORIGINS.includes(origin || '') || origin === DEFAULT_ORIGIN) {
-    headers.set('access-control-allow-origin', origin || '*')
+  // Effective allowlist: fall back to the app origin when none is configured,
+  // mirroring the Express server. Credentials are only enabled for an
+  // EXPLICIT allowlist (no `*`), so we never reflect an arbitrary request
+  // origin together with `Access-Control-Allow-Credentials: true`.
+  const effective = ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS : [DEFAULT_ORIGIN]
+  const allowCreds = !effective.includes('*')
+  const allowedOrigin = effective.includes('*') ? origin || '*' : effective[0]
+  if (allowCreds) {
+    // Allow only the configured/default origin (reflected or not) with creds.
+    if (effective.includes(origin || '') || origin === DEFAULT_ORIGIN || !origin) {
+      headers.set('access-control-allow-origin', origin || DEFAULT_ORIGIN)
+      headers.set('access-control-allow-credentials', 'true')
+    }
+  } else {
+    // Public mode (contains '*') — no credentials, allow the origin.
+    headers.set('access-control-allow-origin', allowedOrigin)
   }
   headers.set('access-control-allow-methods', 'GET, POST, PUT, DELETE, OPTIONS')
   headers.set('access-control-allow-headers', 'Content-Type, Authorization')
-  headers.set('access-control-allow-credentials', 'true')
   return headers
 }
 
@@ -79,6 +92,19 @@ export async function handleRequest(request: Request): Promise<Response> {
 
   const { handler, params } = matchRoute(request.method, path)
   if (handler) {
+    // Brute-force / abuse protection on the auth surface (M6).
+    if (request.method === 'POST' && path.startsWith('/api/auth/')) {
+      const limiter =
+        path === '/api/auth/forgot-password'
+          ? rateLimit(request, 60 * 60 * 1000, 5)
+          : rateLimit(request, 15 * 60 * 1000, 20)
+      if (limiter.limited) {
+        return new Response(
+          JSON.stringify({ error: 'Too many attempts, please try again later.' }),
+          { status: 429, headers: { ...corsHeaders(origin), 'Retry-After': String(limiter.retryAfter) } }
+        )
+      }
+    }
     try {
       const response = await handler(request, params.id)
       const res = response instanceof Response ? response : json(response)
@@ -96,14 +122,19 @@ export async function handleRequest(request: Request): Promise<Response> {
   return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: corsHeaders(origin) })
 }
 
-let initialized = false
+// Initialize the DB exactly once and await it before serving any request, so
+// a cold start never races ahead of table creation (M3).
+let initPromise: Promise<void> | null = null
 
 export default {
-  fetch(request: Request): Promise<Response> | Response {
-    if (!initialized) {
-      initialized = true
-      initDb().catch(console.error)
+  async fetch(request: Request): Promise<Response> {
+    if (!initPromise) {
+      initPromise = initDb().catch((e) => {
+        console.error('Database initialization failed', e)
+        throw e
+      })
     }
+    await initPromise
     return handleRequest(request)
   },
 }

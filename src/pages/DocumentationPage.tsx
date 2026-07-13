@@ -128,7 +128,7 @@ const endpoints: Endpoint[] = [
     path: '/api/auth/forgot-password',
     auth: false,
     description:
-      'Request a password reset link. Always returns 200 to avoid leaking which emails are registered. If SMTP is configured the link is emailed; otherwise the response includes a devLink for local testing.',
+      'Request a password reset link. Always returns 200 to avoid leaking which emails are registered. If SMTP is configured the link is emailed; otherwise it is only logged server-side. The devLink is returned ONLY when RESET_DEV_LINK=true is set (local development).',
     request: `curl -X POST ${BASE}/api/auth/forgot-password \\
   -H "Content-Type: application/json" \\
   -d '{ "email": "you@example.com" }'`,
